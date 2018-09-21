@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha 'test/**/*.spec.js'",
     "create-group": "node src/index.js",
-    "start-greengrass": "bash ./src/scripts/start_greengrass.sh"
+    "start-greengrass": "bash ./src/scripts/start_greengrass.sh",
+    "bootstrap-greengrass": "npm run create-group && npm run start-greengrass"
   },
   "keywords": [],
   "author": "",
