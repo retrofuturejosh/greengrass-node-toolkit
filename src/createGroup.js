@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { logGreen, logRed } = require('./utils/chalk.js');
 
 const { GreengrassService } = require('./services/greengrass');
 const { IoTService } = require('./services/iot');
@@ -20,7 +21,7 @@ const createGreengrassGroup = async (
   policyName
 ) => {
   try {
-    console.log('Creating greengrass group');
+    logGreen('Creating greengrass group');
 
     //start services
     const greengrassService = new GreengrassService(greengrass);
@@ -99,7 +100,7 @@ const createGreengrassGroup = async (
 
     //GROUP VERSION
     // create group version
-    let groupVersion = await greengrassService.createInitialGroupVersion(
+    let groupVersion = await greengrassService.createGroupVersion(
       groupId,
       coreArn
     );
@@ -112,13 +113,18 @@ const createGreengrassGroup = async (
     groupInfo.iotHost = endpoint;
 
     //save group information and config.json
-    fs.writeFileSync('groupInfo.json', JSON.stringify(groupInfo));
+    //Create addedDevices folder if none exists
+    let dir = './groupInfo';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    fs.writeFileSync('./groupInfo/groupInfoV1.json', JSON.stringify(groupInfo));
     fs.writeFileSync('config.json', JSON.stringify(configBuilder.getConfig()));
 
     //all done
-    console.log('Successfully set up Greengrass Group!');
+    logGreen('Successfully set up Greengrass Group!');
   } catch (err) {
-    console.log(err);
+    logRed(err);
   }
 };
 

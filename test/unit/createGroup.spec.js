@@ -28,63 +28,56 @@ describe('Greengrass set up', () => {
     createThingStub = stub(iot, 'createThing');
     createThingStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createThing);
+        return Promise.resolve(expectedResults.createThingRes);
       }
     });
 
     createKeysStub = stub(iot, 'createKeysAndCertificate');
     createKeysStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createKeysCerts);
+        return Promise.resolve(expectedResults.createKeysRes);
       }
     });
-
     attachPrincipalStub = stub(iot, 'attachThingPrincipal');
     attachPrincipalStub.returns({
       promise: () => {
         return Promise.resolve('success');
       }
     });
-
     createPolicyStub = stub(iot, 'createPolicy');
     createPolicyStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createPolicy);
+        return Promise.resolve(expectedResults.createPolicyRes);
       }
     });
-
     attachPrincPolStub = stub(iot, 'attachPrincipalPolicy');
     attachPrincPolStub.returns({
       promise: () => {
         return Promise.resolve('success');
       }
     });
-
     createGroupStub = stub(greengrass, 'createGroup');
     createGroupStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createGroup);
+        return Promise.resolve(expectedResults.createGroupRes);
       }
     });
-
     createCoreDefStub = stub(greengrass, 'createCoreDefinition');
     createCoreDefStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createCoreDefinition);
+        return Promise.resolve(expectedResults.createCoreRes);
       }
     });
-
     groupVersionStub = stub(greengrass, 'createGroupVersion');
     groupVersionStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.createGGVersion);
+        return Promise.resolve(expectedResults.createGroupVersionRes);
       }
     });
-
     getEndpointStub = stub(iot, 'describeEndpoint');
     getEndpointStub.returns({
       promise: () => {
-        return Promise.resolve(expectedResults.endpoint);
+        return Promise.resolve(expectedResults.endpointRes);
       }
     });
 
@@ -111,25 +104,43 @@ describe('Greengrass set up', () => {
       return checkStub(stub);
     });
   });
-  it('Writes the file groupInfo.json', () => {
+  it('Writes the folder/file ./groupInfo/groupInfoV1.json', () => {
     let groupInfo = JSON.parse(
-      fs.readFileSync('groupInfo.json').toString('utf-8')
+      fs.readFileSync('./groupInfo/groupInfoV1.json').toString('utf-8')
     );
     expect(groupInfo).to.deep.equal(expectedResults.groupInfo);
+  });
+  it('Writes the file ./certs/cloud-pem-crt', () => {
     let certPath = fs.existsSync('./certs/cloud-pem-crt');
-    let keyPath = fs.existsSync('./certs/cloud-pem-key');
-    let config = fs.existsSync('config.json');
     expect(certPath).to.equal(true);
+  });
+  it('Writes the file ./certs/cloud-pem-key', () => {
+    let keyPath = fs.existsSync('./certs/cloud-pem-key');
     expect(keyPath).to.equal(true);
-    fs.unlink('groupInfo.json', function(err) {
+  });
+  it('Writes the file config.json', () => {
+    let config = fs.existsSync('config.json');
+    expect(config).to.equal(true);
+  });
+  after(() => {
+    //Clean up files
+    fs.unlink('./groupInfo/groupInfoV1.json', function(err) {
       if (err) return console.log(err);
-      console.log('groupInfo.json deleted successfully');
+      console.log('groupInfoV1.json deleted successfully');
+    });
+    fs.rmdir('./groupInfo', function(err) {
+      if (err) return console.log(err);
+      console.log('groupInfo folder deleted successfully');
     });
     fs.unlink('./certs/cloud-pem-crt', function(err) {
       if (err) return console.log(err);
       console.log('cloud-pem-crt deleted successfully');
     });
     fs.unlink('./certs/cloud-pem-key', function(err) {
+      if (err) return console.log(err);
+      console.log('cloud-pem-key deleted successfully');
+    });
+    fs.unlink('./config.json', function(err) {
       if (err) return console.log(err);
       console.log('cloud-pem-key deleted successfully');
     });

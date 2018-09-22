@@ -1,3 +1,5 @@
+const { logGreenDim, logRed } = require('../utils/chalk.js');
+
 class IoTService {
   constructor(iot) {
     this.iot = iot;
@@ -21,11 +23,11 @@ class IoTService {
       .createThing(thingParams)
       .promise()
       .then(res => {
-        console.log('Successfully created thing:', JSON.stringify(res));
+        logGreenDim(`Successfully created thing: ${JSON.stringify(res)}`);
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
@@ -41,11 +43,11 @@ class IoTService {
       .createKeysAndCertificate(params)
       .promise()
       .then(res => {
-        console.log('Successfully created keys:', JSON.stringify(res));
+        logGreenDim(`Successfully created keys: ${JSON.stringify(res)}`);
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
@@ -63,18 +65,20 @@ class IoTService {
       .attachThingPrincipal(params)
       .promise()
       .then(res => {
-        console.log('Successfully attached Thing Principal:', res);
+        logGreenDim(
+          `Successfully attached Thing Principal: ${JSON.stringify(res)}`
+        );
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
   /**
    * Creates necessary iot policy
    * @param {string} policyName - optional: name of policy
-   * @param {string} policyDoc - optional: JSON policy document
+   * @param {object} policyDoc - optional: JSON policy document
    */
   createPolicy(policyName, policyDoc) {
     let policy = {
@@ -114,11 +118,11 @@ class IoTService {
       .createPolicy(params)
       .promise()
       .then(res => {
-        console.log('Successfully Created Policy:', res);
+        logGreenDim(`Successfully Created Policy: ${JSON.stringify(res)}`);
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
@@ -137,11 +141,13 @@ class IoTService {
       .attachPrincipalPolicy(params)
       .promise()
       .then(res => {
-        console.log('Successfully Attached principal policy:', res);
+        logGreenDim(
+          `Successfully Attached principal policy: ${JSON.stringify(res)}`
+        );
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
@@ -157,11 +163,11 @@ class IoTService {
       .describeEndpoint(params)
       .promise()
       .then(res => {
-        console.log('got endpoint: ', res);
+        logGreenDim(`got endpoint: ${JSON.stringify(res)}`);
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 }

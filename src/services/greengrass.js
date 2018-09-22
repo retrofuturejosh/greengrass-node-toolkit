@@ -1,3 +1,5 @@
+const { logGreenDim, logRed } = require('../utils/chalk.js');
+
 class GreengrassService {
   constructor(greengrass) {
     this.greengrass = greengrass;
@@ -16,11 +18,11 @@ class GreengrassService {
       .createGroup(params)
       .promise()
       .then(res => {
-        console.log('Successfully created group:', res);
+        logGreenDim(`Successfully created group: ${JSON.stringify(res)}`);
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
@@ -48,83 +50,249 @@ class GreengrassService {
       .createCoreDefinition(params)
       .promise()
       .then(res => {
-        console.log('Successfully Created core definiton:', res);
+        logGreenDim(
+          `Successfully Created core definiton: ${JSON.stringify(res)}`
+        );
         return res;
       })
       .catch(err => {
-        console.log(err);
+        logRed(err);
       });
   }
 
   /**
-   * Creates a device definition
-   *
-   * @param {string} token - client token
-   * @param {sting} certArn - arn of certificate
-   * @param {string} deviceId - id of device
-   * @param {boolean} syncShadow
-   * @param {string} thingArn - arn of thing
-   * @param {string} deviceName - name of device
+   * Creates initial device definition
+   * @param {string} deviceDefName - name of device definition
+   * @param {Array} devicesArr - array of device objects following pattern: {
+          CertificateArn: 'STRING_VALUE',
+          Id: 'STRING_VALUE',
+          SyncShadow: true || false,
+          ThingArn: 'STRING_VALUE'
+        }
    */
-  createDeviceDefinition(
-    token,
-    certArn,
-    deviceId,
-    syncShadow,
-    thingArn,
-    deviceName
-  ) {
+  createDeviceDefinition(deviceDefName, devicesArr) {
     const params = {
-      AmznClientToken: token,
       InitialVersion: {
-        Devices: [
-          {
-            CertificateArn: certArn,
-            Id: deviceId,
-            SyncShadow: syncShadow,
-            ThingArn: thingArn
-          }
-        ]
+        Devices: devicesArr
       },
-      Name: deviceName
+      Name: deviceDefName
     };
     return this.greengrass
       .createDeviceDefinition(params)
       .promise()
       .then(res => {
-        console.log(
-          'Successfully Created Device Definition:',
-          JSON.stringify(res)
+        logGreenDim(
+          `Successfully Created Device Definition:
+          ${JSON.stringify(res)}`
         );
         return res;
       })
       .catch(err => {
-        console.log(err);
+        log.red(err);
       });
   }
 
   /**
-   * creates first version of group, connecting core
-   *
-   * @param {string} groupId - id of group
-   * @param {string} coreArn - arn of latest core version
+   * Creates a new Device Definition Version
+   * @param {string} deviceDefinitionId - id of device definition
+   * @param {Array} devicesArr - array of device objects following pattern: {
+          CertificateArn: 'STRING_VALUE',
+          Id: 'STRING_VALUE',
+          SyncShadow: true || false,
+          ThingArn: 'STRING_VALUE'
+        }
    */
-  createInitialGroupVersion(groupId, coreArn) {
-    let params = {
-      GroupId: groupId,
-      CoreDefinitionVersionArn: coreArn
+  createDeviceDefinitionVersion(deviceDefinitionId, devicesArr) {
+    var params = {
+      DeviceDefinitionId: deviceDefinitionId,
+      Devices: devicesArr
     };
+    return this.greengrass
+      .createDeviceDefinitionVersion(params)
+      .promise()
+      .then(res => {
+        logGreenDim(
+          `Created new device definition version: ${JSON.stringify(res)}`
+        );
+        return res;
+      })
+      .catch(err => {
+        log.red(err);
+      });
+  }
+
+  /**
+   * creates version of group: do not include or use null as value for any unwanted optional definitions
+   *
+   * @param {string} groupId - required: id of group
+   * @param {string} coreArn - optional: arn of latest core version
+   * @param {string} deviceDefVersionArn - optional: arn of device definition version
+   * @param {string} funcDefVersionArn - optional: arn of function definition version
+   * @param {string} loggerDefVersionArn - optional: arn of logger definition version
+   * @param {string} ResourceDefVersionArn - optional: arn of resource definition version
+   * @param {string} subDefVersionArn - optional: arn of subscription definition version
+   */
+  createGroupVersion(
+    groupId,
+    coreArn,
+    deviceDefVersionArn,
+    funcDefVersionArn,
+    loggerDefVersionArn,
+    ResourceDefVersionArn,
+    subDefVersionArn
+  ) {
+    let params = {
+      GroupId: groupId
+    };
+
+    //add optional params
+    if (coreArn) params.CoreDefinitionVersionArn = coreArn;
+    if (deviceDefVersionArn)
+      params.DeviceDefinitionVersionArn = deviceDefVersionArn;
+    if (funcDefVersionArn)
+      params.FunctionDefinitionVersionArn = funcDefVersionArn;
+    if (loggerDefVersionArn)
+      params.LoggerDefinitionVersionArn = loggerDefVersionArn;
+    if (ResourceDefVersionArn)
+      params.ResourceDefinitionVersionArn = ResourceDefVersionArn;
+    if (subDefVersionArn)
+      params.SubscriptionDefinitionVersionArn = subDefVersionArn;
 
     return this.greengrass
       .createGroupVersion(params)
       .promise()
       .then(res => {
-        console.log('Successfully created group version:', res);
+        logGreenDim(
+          `Successfully created group version: ${JSON.stringify(res)}`
+        );
         return res;
       })
       .catch(err => {
-        console.log(err);
+        log.red(err);
       });
+  }
+
+  /**
+   * gets info about group
+   * @param {string} groupId - id of group
+   */
+  getGroup(groupId) {
+    const params = {
+      GroupId: groupId
+    };
+    return this.greengrass
+      .getGroup(params)
+      .promise()
+      .then(res => {
+        logGreenDim(`Fetched Group: ${JSON.stringify(res)}`);
+        return res;
+      })
+      .catch(err => {
+        log.red(err);
+      });
+  }
+
+  /**
+   * returns info about group version
+   * @param {string} groupId - id of group
+   * @param {string} versionId - id of version
+   */
+  getGroupVersion(groupId, versionId) {
+    const params = {
+      GroupId: groupId,
+      GroupVersionId: versionId
+    };
+    return this.greengrass
+      .getGroupVersion(params)
+      .promise()
+      .then(res => {
+        logGreenDim(`Fetched Group Version: ${JSON.stringify(res)}`);
+        return res;
+      })
+      .catch(err => {
+        log.red(err);
+      });
+  }
+
+  /**
+   * Gets info about the latest Group version from only groupId
+   * @param {string} groupId - id of group
+   */
+  async getLatestGroupVersion(groupId) {
+    let group = await this.getGroup(groupId);
+    let latestVersion = group.LatestVersion;
+    return this.getGroupVersion(groupId, latestVersion);
+  }
+
+  /**
+   * gets info about device definition version
+   * @param {string} deviceDefinitionId - id of device definition
+   * @param {string} deviceDefinitionVersionId - id of device definition version
+   */
+  getDeviceDefinitionVersion(deviceDefinitionId, deviceDefinitionVersionId) {
+    const params = {
+      DeviceDefinitionId: deviceDefinitionId,
+      DeviceDefinitionVersionId: deviceDefinitionVersionId
+    };
+    return this.greengrass
+      .getDeviceDefinitionVersion(params)
+      .promise()
+      .then(res => {
+        logGreenDim(`Got device definition version : ${JSON.stringify(res)}`);
+        return res;
+      })
+      .catch(err => {
+        log.red(err);
+      });
+  }
+
+  /**
+   * lists all device definitions
+   * @param {string} token - optional: for paginated results
+   */
+  listDeviceDefinitions(token) {
+    let params = {
+      MaxResults: '100'
+    };
+    if (token) params.NextToken = token;
+    return this.greengrass
+      .listDeviceDefinitions(params)
+      .promise()
+      .catch(err => {
+        log.red(err);
+      });
+  }
+
+  /**
+   * Gets device version id from device version arn
+   * @param {string} latestVersionARN - arn of device version
+   * @param {string} token - only used for paginated results
+   */
+  async findDeviceVersionId(latestVersionARN, token) {
+    let list = await this.listDeviceDefinitions(token);
+    list.Definitions.filter(def => {
+      return def.LatestVersionArn === latestVersionARN;
+    });
+    //if deviceDefinition is found
+    if (list.Definitions.length) return list.Definitions[0];
+    //if deviceDefinition is not found, but there is more list
+    else if (list.NextToken)
+      return findDeviceVersionId(latestVersionARN, list.NextToken);
+    //if deviceDefinition is not found
+    else return null;
+  }
+
+  /**
+   * gets info about device version defintion from device definition version arn;
+   * @param {*} versionArn
+   */
+  async findDeviceVersionDefinition(versionArn) {
+    let device = await this.findDeviceVersionId(versionArn);
+    let deviceVersion = await this.getDeviceDefinitionVersion(
+      device.Id,
+      device.LatestVersion
+    );
+    return deviceVersion;
   }
 }
 

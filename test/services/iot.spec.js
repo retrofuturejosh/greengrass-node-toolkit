@@ -9,10 +9,12 @@ const expectedResults = require('../expectedResults.js');
 
 describe('IoT Service', () => {
   //assign expected results
-  const createThingRes = expectedResults.createThing;
-  const createKeysRes = expectedResults.createKeysCerts;
-  const createPolicyRes = expectedResults.createPolicy;
-  const endpointRes = expectedResults.endpoint;
+  const {
+    createThingRes,
+    createKeysRes,
+    createPolicyRes,
+    endpointRes
+  } = expectedResults;
 
   //stub services
   let createThingStub = stub(iot, 'createThing');
