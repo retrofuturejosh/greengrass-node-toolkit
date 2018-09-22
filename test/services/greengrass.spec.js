@@ -22,7 +22,9 @@ describe('Greengrass service', () => {
     createDeviceDefRes,
     createDeviceDefVersionRes,
     getGroupRes,
-    getGroupVersionRes
+    getGroupVersionRes,
+    getDeviceDefVersionRes,
+    listDeviceDefinitionsRes
   } = expectedResults;
 
   //stub services
@@ -71,13 +73,25 @@ describe('Greengrass service', () => {
       return Promise.resolve(createDeviceDefVersionRes);
     }
   });
+  let getDeviceDefVersionStub = stub(greengrass, 'getDeviceDefinitionVersion');
+  getDeviceDefVersionStub.returns({
+    promise: () => {
+      return Promise.resolve(getDeviceDefVersionRes);
+    }
+  });
+  let listDeviceDefinitionsStub = stub(greengrass, 'listDeviceDefinitions');
+  listDeviceDefinitionsStub.returns({
+    promise: () => {
+      return Promise.resolve(listDeviceDefinitionsRes);
+    }
+  });
 
   //start service
   const greengrassService = new GreengrassService(greengrass);
 
   //test methods
   describe(`has working method 'createGroup'`, () => {
-    it('createGroup calls the service with correct params and returns greengrass promise', async () => {
+    it('createGroup calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.createGroup('testName');
       expect(res).to.deep.equal(createGroupRes);
       expect(createGroupStub.args[0][0]).to.deep.equal({
@@ -87,7 +101,7 @@ describe('Greengrass service', () => {
   });
 
   describe(`has working method 'createCoreDefinition'`, () => {
-    it('createCoreDefinition calls the service with correct params and returns greengrass promise', async () => {
+    it('createCoreDefinition calls the service with correct params and returns promise resolving to correct data', async () => {
       let initialVersion = {
         Cores: [
           {
@@ -121,7 +135,7 @@ describe('Greengrass service', () => {
   });
 
   describe(`has working method 'createGroupVersion'`, () => {
-    it('createGroupVersion calls the service with correct params and returns greengrass promise', async () => {
+    it('createGroupVersion calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.createGroupVersion(
         'groupID',
         'coreArn'
@@ -135,7 +149,7 @@ describe('Greengrass service', () => {
     });
   });
   describe(`has working method 'getGroup'`, () => {
-    it('getGroup calls the service with correct params and returns greengrass promise', async () => {
+    it('getGroup calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.getGroup('groupId');
       let calledWith = {
         GroupId: 'groupId'
@@ -145,7 +159,7 @@ describe('Greengrass service', () => {
     });
   });
   describe(`has working method 'getVersion'`, () => {
-    it('getVersion calls the service with correct params and returns greengrass promise', async () => {
+    it('getVersion calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.getGroupVersion('groupId', 'versionId');
       let calledWith = {
         GroupId: 'groupId',
@@ -156,7 +170,7 @@ describe('Greengrass service', () => {
     });
   });
   describe(`has working method 'getLatestGroupVersion'`, () => {
-    it('getLatestGroupVersion calls the service with correct params and returns greengrass promise', async () => {
+    it('getLatestGroupVersion calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.getLatestGroupVersion('anotherGroupId');
       let calledWith = {
         GroupId: 'anotherGroupId'
@@ -171,7 +185,7 @@ describe('Greengrass service', () => {
     });
   });
   describe(`has working method 'createDeviceDefinition'`, () => {
-    it('createDeviceDefinition calls the service with correct params and returns greengrass promise', async () => {
+    it('createDeviceDefinition calls the service with correct params and returns promise resolving to correct data', async () => {
       let devicesArr = [
         {
           CertificateArn: 'CertArn',
@@ -195,7 +209,7 @@ describe('Greengrass service', () => {
     });
   });
   describe(`has working method 'createDeviceDefinitionVersion'`, () => {
-    it('createDeviceDefinitionVersion calls the service with correct params and returns greengrass promise', async () => {
+    it('createDeviceDefinitionVersion calls the service with correct params and returns promise resolving to correct data', async () => {
       let devicesArr = [
         {
           CertificateArn: 'CertArn',
@@ -211,9 +225,46 @@ describe('Greengrass service', () => {
       let calledWith = {
         DeviceDefinitionId: 'deviceId',
         Devices: devicesArr
-      }
+      };
       expect(res).to.equal(createDeviceDefVersionRes);
       expect(createDeviceDefVersionStub.args[0][0]).to.deep.equal(calledWith);
+    });
+  });
+  describe(`has working method 'getDeviceDefinitionVersion'`, () => {
+    it('getDeviceDefinitionVersion calls the service with correct params and returns promise resolving to correct data', async () => {
+      let res = await greengrassService.getDeviceDefinitionVersion(
+        'deviceDefId',
+        'deviceDefVersionId'
+      );
+      let calledWith = {
+        DeviceDefinitionId: 'deviceDefId',
+        DeviceDefinitionVersionId: 'deviceDefVersionId'
+      };
+      expect(res).to.deep.equal(getDeviceDefVersionRes);
+      expect(getDeviceDefVersionStub.args[0][0]).to.deep.equal(calledWith);
+    });
+  });
+  describe(`has working method 'listDeviceDefinitions'`, () => {
+    it('listDeviceDefinitions calls the service with correct params and returns promise resolving to correct data', async () => {
+      let res = await greengrassService.listDeviceDefinitions();
+      let calledWith = {
+        MaxResults: '100'
+      }
+      expect(res).to.deep.equal(listDeviceDefinitionsRes);
+      expect(listDeviceDefinitionsStub.args[0][0]).to.deep.equal(calledWith);
+    });
+  });
+  describe(`has working method 'findLatestDeviceVersionId'`, () => {
+    it(`findLatestDeviceVersionId calls the service's methods with correct params and returns promise resolving to correct data`, async () => {
+      let res = await greengrassService.findLatestDeviceVersionId('latestVersionArn');
+      expect(res).to.deep.equal(listDeviceDefinitionsRes.Definitions[0]);
+      expect()
+    });
+  });
+  describe(`has working method 'findLatestDeviceVersionDefinition'`, () => {
+    it('findLatestDeviceVersionDefinition calls greengrass methods with correct params and returns promise resolving to correct data', async () => {
+      let res = await greengrassService.findLatestDeviceVersionDefinition('latestVersionArn');
+      expect(res).to.deep.equal(getDeviceDefVersionRes);
     });
   });
 });

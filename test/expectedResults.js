@@ -84,12 +84,43 @@ const getGroupVersionRes = {
 };
 
 const createDeviceDefVersionRes = {
-  CertificateArn:
-    'certArn',
+  CertificateArn: 'certArn',
   Id: 'deviceId',
-  SyncShadow:
-    "boolean",
+  SyncShadow: 'boolean',
   ThingArn: 'thingArn'
+};
+
+const getDeviceDefVersionRes = {
+  Arn: 'deviceDefVersionArn',
+  CreationTimestamp: 'timestamp',
+  Definition: {
+    Devices: [
+      {
+        CertificateArn: 'certArn',
+        Id: 'deviceId',
+        SyncShadow: true,
+        ThingArn: 'thingArn'
+      }
+    ]
+  },
+
+  Id: 'deviceDefinitionVersionId',
+  Version: 'deviceDefinitionVersion'
+};
+
+const listDeviceDefinitionsRes = {
+  Definitions: [
+    {
+      Arn: 'deviceDefArn',
+      CreationTimestamp: 'timestamp',
+      Id: 'definitionId',
+      LastUpdatedTimestamp: 'timestamp',
+      LatestVersion: 'latestVersion',
+      LatestVersionArn: 'latestVersionArn',
+      Name: 'definitionName'
+    }
+  ],
+  NextToken: 'nextToken'
 };
 
 const groupInfo = {
@@ -148,5 +179,7 @@ module.exports = {
   getGroupRes,
   getGroupVersionRes,
   createDeviceDefVersionRes,
+  getDeviceDefVersionRes,
+  listDeviceDefinitionsRes,
   groupInfo
 };

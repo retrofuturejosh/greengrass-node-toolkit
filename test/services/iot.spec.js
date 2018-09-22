@@ -58,7 +58,7 @@ describe('IoT Service', () => {
   const iotService = new IoTService(iot);
 
   describe(`Has working method: 'createThing'`, () => {
-    it('createThing calls the service with correct params and returns IoT promise', async () => {
+    it('createThing calls the service with correct params and returns promise resolving to correct data', async () => {
       let myAttribute = { myAttribute: 'yas', anotherAttribute: 'werk' };
       let res = await iotService.createThing('MyTestThing');
       let res2 = await iotService.createThing('MyTestThing', myAttribute);
@@ -84,7 +84,7 @@ describe('IoT Service', () => {
     });
   });
   describe(`has working method: 'attachThingPrincipal'`, () => {
-    it('attachThingPrincipal calls the service with correct params and returns IoT promise', async () => {
+    it('attachThingPrincipal calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.attachThingPrincipal('certArn', 'testThing');
       let calledWith = {
         principal: 'certArn',
@@ -94,7 +94,7 @@ describe('IoT Service', () => {
     });
   });
   describe(`has working method: createPolicy`, () => {
-    it('createPolicy calls the service with correct params and returns IoT promise', async () => {
+    it('createPolicy calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.createPolicy();
       let policy = {
         Version: '2012-10-17',
@@ -130,7 +130,7 @@ describe('IoT Service', () => {
     });
   });
   describe(`has working method: 'attachPrincipalPolicy'`, () => {
-    it('attachPrincipalPolicy calls the service with correct params and returns IoT promise', async () => {
+    it('attachPrincipalPolicy calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.attachPrincipalPolicy(
         'myPolicy',
         'myPrincipal'
@@ -143,7 +143,7 @@ describe('IoT Service', () => {
     });
   });
   describe(`has a working method: 'getEndpoint'`, () => {
-    it('getEndpoint calls the service with correct params and returns IoT promise', async () => {
+    it('getEndpoint calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.getIoTEndpoint();
       expect(res).to.equal(endpointRes);
     });

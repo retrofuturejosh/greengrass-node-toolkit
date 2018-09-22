@@ -80,7 +80,7 @@ async function addDevice(iot, greengrass, deviceName) {
   //check if devices are already defined
   let latestDeviceDef;
   if (latestGroupDef.Definition.DeviceDefinitionVersionArn) {
-    latestDeviceDef = await greengrassService.findDeviceVersionDefinition(
+    latestDeviceDef = await greengrassService.findLatestDeviceVersionDefinition(
       latestGroupDef.Definition.DeviceDefinitionVersionArn
     );
     console.log('LATEST DEVICE DEF DEVICES ARE ', latestDeviceDef.Definition);

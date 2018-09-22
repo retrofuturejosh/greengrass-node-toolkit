@@ -268,7 +268,7 @@ class GreengrassService {
    * @param {string} latestVersionARN - arn of device version
    * @param {string} token - only used for paginated results
    */
-  async findDeviceVersionId(latestVersionARN, token) {
+  async findLatestDeviceVersionId(latestVersionARN, token) {
     let list = await this.listDeviceDefinitions(token);
     list.Definitions.filter(def => {
       return def.LatestVersionArn === latestVersionARN;
@@ -277,17 +277,17 @@ class GreengrassService {
     if (list.Definitions.length) return list.Definitions[0];
     //if deviceDefinition is not found, but there is more list
     else if (list.NextToken)
-      return findDeviceVersionId(latestVersionARN, list.NextToken);
+      return findLatestDeviceVersionId(latestVersionARN, list.NextToken);
     //if deviceDefinition is not found
     else return null;
   }
 
   /**
-   * gets info about device version defintion from device definition version arn;
-   * @param {*} versionArn
+   * gets info about latest device version definition from latest device definition version arn;
+   * @param {string} versionArn - latest Device Definition Version ARN
    */
-  async findDeviceVersionDefinition(versionArn) {
-    let device = await this.findDeviceVersionId(versionArn);
+  async findLatestDeviceVersionDefinition(versionArn) {
+    let device = await this.findLatestDeviceVersionId(versionArn);
     let deviceVersion = await this.getDeviceDefinitionVersion(
       device.Id,
       device.LatestVersion
