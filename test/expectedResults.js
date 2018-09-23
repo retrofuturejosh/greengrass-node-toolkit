@@ -72,13 +72,14 @@ const getGroupRes = {
 const getGroupVersionRes = {
   Arn: 'groupArn',
   CreationTimestamp: 'timestamp',
-  Definition: 'groupDefinition Object',
-  CoreDefinitionVersionArn: 'CoreDefinitionVersionArn',
-  DeviceDefinitionVersionArn: 'DeviceDefinitionVersionArn',
-  FunctionDefinitionVersionArn: 'FunctionDefinitionVersionArn',
-  LoggerDefinitionVersionArn: 'LoggerDefinitionVersionArn',
-  ResourceDefinitionVersionArn: 'ResourceDefinitionVersionArn',
-  SubscriptionDefinitionVersionArn: 'SubscriptionDefinitionVersionArn',
+  Definition: {
+    CoreDefinitionVersionArn: 'CoreDefinitionVersionArn',
+    DeviceDefinitionVersionArn: 'DeviceDefinitionVersionArn',
+    FunctionDefinitionVersionArn: 'FunctionDefinitionVersionArn',
+    LoggerDefinitionVersionArn: 'LoggerDefinitionVersionArn',
+    ResourceDefinitionVersionArn: 'ResourceDefinitionVersionArn',
+    SubscriptionDefinitionVersionArn: 'SubscriptionDefinitionVersionArn'
+  },
   Id: 'groupId',
   Version: 'groupVersionId'
 };

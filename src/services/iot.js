@@ -111,7 +111,7 @@ class IoTService {
       policyName: 'greengrassPolicy' /* required */
     };
 
-    if (policyDoc) params.policyDocument = policyDoc;
+    if (policyDoc) params.policyDocument = JSON.stringify(policyDoc);
     if (policyName) params.policyName = policyName;
 
     return this.iot

@@ -88,7 +88,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -117,7 +117,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -125,38 +125,24 @@ class GreengrassService {
    * creates version of group: do not include or use null as value for any unwanted optional definitions
    *
    * @param {string} groupId - required: id of group
-   * @param {string} coreArn - optional: arn of latest core version
-   * @param {string} deviceDefVersionArn - optional: arn of device definition version
-   * @param {string} funcDefVersionArn - optional: arn of function definition version
-   * @param {string} loggerDefVersionArn - optional: arn of logger definition version
-   * @param {string} ResourceDefVersionArn - optional: arn of resource definition version
-   * @param {string} subDefVersionArn - optional: arn of subscription definition version
+   * @param {object} definitionARNs - optional: object of definition arns following pattern (no property is requried) {
+   *  CoreDefinitionVersionArn: '<STRING>',
+   * DeviceDefinitionVersionArn: '<STRING>',
+   * FunctionDefinitionVersionArn: '<STRING>',
+   * LoggerDefinitionVersionArn: '<STRING>',
+   * ResourceDefinitionVersionArn: '<STRING>',
+   * SubscriptionDefinitionVersionArn: '<STRING>',
+   * }
    */
-  createGroupVersion(
-    groupId,
-    coreArn,
-    deviceDefVersionArn,
-    funcDefVersionArn,
-    loggerDefVersionArn,
-    ResourceDefVersionArn,
-    subDefVersionArn
-  ) {
+  createGroupVersion(groupId, definitionARNs) {
     let params = {
       GroupId: groupId
     };
+    for (let arn in definitionARNs) {
+      params[arn] = definitionARNs[arn];
+    }
 
-    //add optional params
-    if (coreArn) params.CoreDefinitionVersionArn = coreArn;
-    if (deviceDefVersionArn)
-      params.DeviceDefinitionVersionArn = deviceDefVersionArn;
-    if (funcDefVersionArn)
-      params.FunctionDefinitionVersionArn = funcDefVersionArn;
-    if (loggerDefVersionArn)
-      params.LoggerDefinitionVersionArn = loggerDefVersionArn;
-    if (ResourceDefVersionArn)
-      params.ResourceDefinitionVersionArn = ResourceDefVersionArn;
-    if (subDefVersionArn)
-      params.SubscriptionDefinitionVersionArn = subDefVersionArn;
+    console.log('CREATING GROUP WITH PARAMS', params);
 
     return this.greengrass
       .createGroupVersion(params)
@@ -168,7 +154,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -188,7 +174,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -210,7 +196,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -220,8 +206,11 @@ class GreengrassService {
    */
   async getLatestGroupVersion(groupId) {
     let group = await this.getGroup(groupId);
+    let groupName = group.Name;
     let latestVersion = group.LatestVersion;
-    return this.getGroupVersion(groupId, latestVersion);
+    let res = await this.getGroupVersion(groupId, latestVersion);
+    res.groupName = groupName;
+    return res;
   }
 
   /**
@@ -242,7 +231,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -259,7 +248,7 @@ class GreengrassService {
       .listDeviceDefinitions(params)
       .promise()
       .catch(err => {
-        log.red(err);
+        logRed(err);
       });
   }
 
@@ -270,11 +259,12 @@ class GreengrassService {
    */
   async findLatestDeviceVersionId(latestVersionARN, token) {
     let list = await this.listDeviceDefinitions(token);
-    list.Definitions.filter(def => {
-      return def.LatestVersionArn === latestVersionARN;
+    let filteredList = list.Definitions.filter(def => {
+      if (def.LatestVersionArn === latestVersionARN) return true;
+      else return false;
     });
     //if deviceDefinition is found
-    if (list.Definitions.length) return list.Definitions[0];
+    if (filteredList.length) return filteredList[0];
     //if deviceDefinition is not found, but there is more list
     else if (list.NextToken)
       return findLatestDeviceVersionId(latestVersionARN, list.NextToken);
@@ -292,6 +282,7 @@ class GreengrassService {
       device.Id,
       device.LatestVersion
     );
+    deviceVersion.definitionId = device.Id;
     return deviceVersion;
   }
 }

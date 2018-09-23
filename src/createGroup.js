@@ -100,10 +100,9 @@ const createGreengrassGroup = async (
 
     //GROUP VERSION
     // create group version
-    let groupVersion = await greengrassService.createGroupVersion(
-      groupId,
-      coreArn
-    );
+    let groupVersion = await greengrassService.createGroupVersion(groupId, {
+      CoreDefinitionVersionArn: coreArn
+    });
     groupInfo.groupVersion = groupVersion;
 
     //ENDPOINT

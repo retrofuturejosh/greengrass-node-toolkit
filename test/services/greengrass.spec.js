@@ -136,10 +136,9 @@ describe('Greengrass service', () => {
 
   describe(`has working method 'createGroupVersion'`, () => {
     it('createGroupVersion calls the service with correct params and returns promise resolving to correct data', async () => {
-      let res = await greengrassService.createGroupVersion(
-        'groupID',
-        'coreArn'
-      );
+      let res = await greengrassService.createGroupVersion('groupID', {
+        CoreDefinitionVersionArn: 'coreArn'
+      });
       let calledWith = {
         GroupId: 'groupID',
         CoreDefinitionVersionArn: 'coreArn'
@@ -181,7 +180,9 @@ describe('Greengrass service', () => {
         GroupVersionId: 'latestVersion'
       };
       expect(getGroupVersionStub.args[1][0]).to.deep.equal(calledWith);
-      expect(res).to.deep.equal(getGroupVersionRes);
+      let expected = getGroupVersionRes;
+      expected.groupName = 'groupName';
+      expect(res).to.deep.equal(expected);
     });
   });
   describe(`has working method 'createDeviceDefinition'`, () => {
@@ -249,21 +250,25 @@ describe('Greengrass service', () => {
       let res = await greengrassService.listDeviceDefinitions();
       let calledWith = {
         MaxResults: '100'
-      }
+      };
       expect(res).to.deep.equal(listDeviceDefinitionsRes);
       expect(listDeviceDefinitionsStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
   describe(`has working method 'findLatestDeviceVersionId'`, () => {
     it(`findLatestDeviceVersionId calls the service's methods with correct params and returns promise resolving to correct data`, async () => {
-      let res = await greengrassService.findLatestDeviceVersionId('latestVersionArn');
+      let res = await greengrassService.findLatestDeviceVersionId(
+        'latestVersionArn'
+      );
       expect(res).to.deep.equal(listDeviceDefinitionsRes.Definitions[0]);
-      expect()
+      expect();
     });
   });
   describe(`has working method 'findLatestDeviceVersionDefinition'`, () => {
     it('findLatestDeviceVersionDefinition calls greengrass methods with correct params and returns promise resolving to correct data', async () => {
-      let res = await greengrassService.findLatestDeviceVersionDefinition('latestVersionArn');
+      let res = await greengrassService.findLatestDeviceVersionDefinition(
+        'latestVersionArn'
+      );
       expect(res).to.deep.equal(getDeviceDefVersionRes);
     });
   });
