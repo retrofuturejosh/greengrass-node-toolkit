@@ -138,5 +138,3 @@ async function addDevice(iot, greengrass, deviceName) {
   );
   console.log('Created new Group Version', newGroupVersion);
 }
-
-addDevice(iot, greengrass, 'aFinalDevice');
