@@ -27,7 +27,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to create thing: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -47,7 +47,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to create keys: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -71,7 +71,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to attach thing principal: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -122,7 +122,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to create policy: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -147,7 +147,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to attach principal policy: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -167,7 +167,7 @@ class IoTService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to get endpoing: \n ${err} \n ${err.stack}`);
       });
   }
 }

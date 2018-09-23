@@ -22,7 +22,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`Failed to create group: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -56,7 +56,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`Failed to create core definition: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -88,7 +88,9 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(
+          `failed to create device definition : \n ${err} \n ${err.stack}`
+        );
       });
   }
 
@@ -117,7 +119,11 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(
+          `failed to create device definition version : \n ${err} \n ${
+            err.stack
+          }`
+        );
       });
   }
 
@@ -141,9 +147,6 @@ class GreengrassService {
     for (let arn in definitionARNs) {
       params[arn] = definitionARNs[arn];
     }
-
-    console.log('CREATING GROUP WITH PARAMS', params);
-
     return this.greengrass
       .createGroupVersion(params)
       .promise()
@@ -154,7 +157,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to create group version : \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -174,7 +177,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to get group: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -196,7 +199,7 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(`failed to get group version : \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -231,7 +234,11 @@ class GreengrassService {
         return res;
       })
       .catch(err => {
-        logRed(err);
+        logRed(
+          `failed to get device definition version: \n \n ${err} \n ${
+            err.stack
+          }`
+        );
       });
   }
 
@@ -248,7 +255,7 @@ class GreengrassService {
       .listDeviceDefinitions(params)
       .promise()
       .catch(err => {
-        logRed(err);
+        logRed(`failed to list definitions: \n ${err} \n ${err.stack}`);
       });
   }
 
@@ -258,18 +265,24 @@ class GreengrassService {
    * @param {string} token - only used for paginated results
    */
   async findLatestDeviceVersionId(latestVersionARN, token) {
-    let list = await this.listDeviceDefinitions(token);
-    let filteredList = list.Definitions.filter(def => {
-      if (def.LatestVersionArn === latestVersionARN) return true;
-      else return false;
-    });
-    //if deviceDefinition is found
-    if (filteredList.length) return filteredList[0];
-    //if deviceDefinition is not found, but there is more list
-    else if (list.NextToken)
-      return findLatestDeviceVersionId(latestVersionARN, list.NextToken);
-    //if deviceDefinition is not found
-    else return null;
+    try {
+      let list = await this.listDeviceDefinitions(token);
+      let filteredList = list.Definitions.filter(def => {
+        if (def.LatestVersionArn === latestVersionARN) return true;
+        else return false;
+      });
+      //if deviceDefinition is found
+      if (filteredList.length) return filteredList[0];
+      //if deviceDefinition is not found, but there is more list
+      else if (list.NextToken)
+        return findLatestDeviceVersionId(latestVersionARN, list.NextToken);
+      //if deviceDefinition is not found
+      else return null;
+    } catch (err) {
+      logRed(
+        `failed in method: findLatestDeviceVersionId: \n ${err} \n ${err.stack}`
+      );
+    }
   }
 
   /**
@@ -277,13 +290,21 @@ class GreengrassService {
    * @param {string} versionArn - latest Device Definition Version ARN
    */
   async findLatestDeviceVersionDefinition(versionArn) {
-    let device = await this.findLatestDeviceVersionId(versionArn);
-    let deviceVersion = await this.getDeviceDefinitionVersion(
-      device.Id,
-      device.LatestVersion
-    );
-    deviceVersion.definitionId = device.Id;
-    return deviceVersion;
+    try {
+      let device = await this.findLatestDeviceVersionId(versionArn);
+      let deviceVersion = await this.getDeviceDefinitionVersion(
+        device.Id,
+        device.LatestVersion
+      );
+      deviceVersion.definitionId = device.Id;
+      return deviceVersion;
+    } catch (err) {
+      logRed(
+        `failed in method: findLatestDeviceVersionDefinition: \n ${err} \n ${
+          err.stack
+        }`
+      );
+    }
   }
 }
 
