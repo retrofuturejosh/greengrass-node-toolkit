@@ -93,12 +93,10 @@ describe('IoT Service', () => {
           }
         ]
       };
-      let calledWith = {
-        policyDocument: JSON.stringify(policy) /* required */,
-        policyName: 'greengrassPolicy' /* required */
-      };
       expect(res).to.deep.equal(expectedResults.createPolicyRes);
-      expect(createPolicyStub.args[0][0]).to.deep.equal(calledWith);
+      expect(createPolicyStub.args[0][0].policyDocument).to.equal(
+        JSON.stringify(policy)
+      );
     });
   });
   describe(`has working method: 'attachPrincipalPolicy'`, () => {

@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha 'test/**/*.spec.js'",
-    "create-group": "node src/index.js",
+    "create-group": "CREATE=group node src/index.js",
     "start-greengrass": "bash ./src/scripts/start_greengrass.sh",
-    "bootstrap-greengrass": "npm run create-group && npm run start-greengrass"
+    "bootstrap-greengrass": "npm run create-group && npm run start-greengrass",
+    "add-device": "CREATE=device node src/index.js"
   },
   "keywords": [],
   "author": "",

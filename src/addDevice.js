@@ -6,10 +6,10 @@ const { IoTService } = require('./services/iot');
 const { GreengrassService } = require('./services/greengrass');
 
 /**
- *
- * @param {service} iot - instance of aws.iot()
- * @param {service} greengrass - instance of aws.greengrass()
- * @param {string} deviceName - name of device to add
+ *  creates a new thing with certs and policy, adds thing to greengrass group as device
+ * @param {service} iot
+ * @param {sevice} greengrass
+ * @param {string} deviceName
  */
 async function addDevice(iot, greengrass, deviceName) {
   try {

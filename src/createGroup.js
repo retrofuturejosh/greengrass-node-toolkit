@@ -11,15 +11,8 @@ const { GreengrassConfigBuilder } = require('./services/ggConfig');
  * @param {service} greengrass - instance of aws.greengrass()
  * @param {string} groupName - name of group
  * @param {string} thingName - core/thing name
- * @param {string} policyName - name of IAM policy attached to IoT/Greengrass services
  */
-const createGreengrassGroup = async (
-  iot,
-  greengrass,
-  groupName,
-  thingName,
-  policyName
-) => {
+const createGreengrassGroup = async (iot, greengrass, groupName, thingName) => {
   try {
     logGreen('Creating greengrass group');
 

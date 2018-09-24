@@ -7,6 +7,17 @@ const greengrass = new AWS.Greengrass({
 });
 
 const { createGreengrassGroup } = require('./createGroup');
-const params = require('./params');
+const { addDevice } = require('./addDevice');
 
-createGreengrassGroup(iot, greengrass, params.groupName, params.coreName, params.policyName);
+if (process.env.CREATE === 'group') {
+  createGreengrassGroup(
+    iot,
+    greengrass,
+    process.env.GROUP_NAME,
+    process.env.CORE_NAME
+  );
+}
+
+if (process.env.CREATE === 'device') {
+  addDevice(iot, greengrass, process.env.DEVICE_NAME);
+}

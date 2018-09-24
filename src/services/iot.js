@@ -106,9 +106,10 @@ class IoTService {
         }
       ]
     };
+    let hash = (Math.random() + 1).toString(36).substring(7)
     let params = {
       policyDocument: JSON.stringify(policy) /* required */,
-      policyName: 'greengrassPolicy' /* required */
+      policyName: `greengrassPolicy${hash}` /* required */
     };
 
     if (policyDoc) params.policyDocument = JSON.stringify(policyDoc);
