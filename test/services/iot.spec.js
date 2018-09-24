@@ -1,61 +1,33 @@
-const AWS = require(`aws-sdk`);
 const { expect } = require('chai');
-const { stub, spy } = require('sinon');
 
-const iot = new AWS.Iot({ apiVersion: '2015-05-28', region: 'us-east-1' });
-
+//import iot stubs, iot service, and expected results
 const { IoTService } = require('../../src/services/iot');
 const expectedResults = require('../expectedResults.js');
+const {
+  iot,
+  createThingStub,
+  createKeysStub,
+  attachPrincipalStub,
+  createPolicyStub,
+  attachPrincPolStub,
+  resetStubHistory
+} = require('./stubService');
 
 describe('IoT Service', () => {
-  //assign expected results
-  const {
-    createThingRes,
-    createKeysRes,
-    createPolicyRes,
-    endpointRes
-  } = expectedResults;
-
-  //stub services
-  let createThingStub = stub(iot, 'createThing');
-  createThingStub.returns({
-    promise: () => {
-      return Promise.resolve(createThingRes);
-    }
-  });
-  createKeysStub = stub(iot, 'createKeysAndCertificate');
-  createKeysStub.returns({
-    promise: () => {
-      return Promise.resolve(createKeysRes);
-    }
-  });
-  let attachPrincipalStub = stub(iot, 'attachThingPrincipal');
-  attachPrincipalStub.returns({
-    promise: () => {
-      return Promise.resolve('success');
-    }
-  });
-  let createPolicyStub = stub(iot, 'createPolicy');
-  createPolicyStub.returns({
-    promise: () => {
-      return Promise.resolve(createPolicyRes);
-    }
-  });
-  let attachPrincPolStub = stub(iot, 'attachPrincipalPolicy');
-  attachPrincPolStub.returns({
-    promise: () => {
-      return Promise.resolve('success');
-    }
-  });
-  let getEndpointStub = stub(iot, 'describeEndpoint');
-  getEndpointStub.returns({
-    promise: () => {
-      return Promise.resolve(endpointRes);
-    }
-  });
-
   //start service
   const iotService = new IoTService(iot);
+
+  //reset stubs after tests
+  after(() => {
+    let stubs = [
+      createThingStub,
+      createKeysStub,
+      attachPrincipalStub,
+      createPolicyStub,
+      attachPrincPolStub
+    ];
+    resetStubHistory(stubs);
+  });
 
   describe(`Has working method: 'createThing'`, () => {
     it('createThing calls the service with correct params and returns promise resolving to correct data', async () => {
@@ -69,16 +41,16 @@ describe('IoT Service', () => {
         thingName: 'MyTestThing',
         attributePayload: { attributes: myAttribute }
       });
-      expect(res).to.deep.equal(createThingRes);
-      expect(res2).to.deep.equal(createThingRes);
+      expect(res).to.deep.equal(expectedResults.createThingRes);
+      expect(res2).to.deep.equal(expectedResults.createThingRes);
     });
   });
   describe(`has working method: 'createKeysCert'`, () => {
     it('createKeysCert calls service with correct arg and creates keys/certificate', async () => {
       let res1 = await iotService.createKeysCert(true);
       let res2 = await iotService.createKeysCert(false);
-      expect(res1).to.deep.equal(createKeysRes);
-      expect(res2).to.deep.equal(createKeysRes);
+      expect(res1).to.deep.equal(expectedResults.createKeysRes);
+      expect(res2).to.deep.equal(expectedResults.createKeysRes);
       expect(createKeysStub.args[0][0]).to.deep.equal({ setAsActive: true });
       expect(createKeysStub.args[1][0]).to.deep.equal({ setAsActive: false });
     });
@@ -125,7 +97,7 @@ describe('IoT Service', () => {
         policyDocument: JSON.stringify(policy) /* required */,
         policyName: 'greengrassPolicy' /* required */
       };
-      expect(res).to.deep.equal(createPolicyRes);
+      expect(res).to.deep.equal(expectedResults.createPolicyRes);
       expect(createPolicyStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -145,7 +117,7 @@ describe('IoT Service', () => {
   describe(`has a working method: 'getEndpoint'`, () => {
     it('getEndpoint calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.getIoTEndpoint();
-      expect(res).to.equal(endpointRes);
+      expect(res).to.equal(expectedResults.endpointRes);
     });
   });
 });

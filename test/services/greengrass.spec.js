@@ -1,99 +1,48 @@
-const AWS = require(`aws-sdk`);
 const { expect } = require('chai');
-const { stub, spy } = require('sinon');
 
-//start greengrass()
-const greengrass = new AWS.Greengrass({
-  apiVersion: '2017-06-07',
-  region: 'us-east-1'
-});
-
-//import greengrass service and expected results
+//import greengrass stub, greengrass servic, and eexpected results
 const { GreengrassService } = require('../../src/services/greengrass');
 const expectedResults = require('../expectedResults');
+const {
+  greengrass,
+  createGroupStub,
+  createCoreDefStub,
+  createGroupVersionStub,
+  createDeviceDefStub,
+  getGroupStub,
+  getGroupVersionStub,
+  createDeviceDefVersionStub,
+  getDeviceDefVersionStub,
+  listDeviceDefinitionsStub,
+  resetStubHistory
+} = require('./stubService.js');
 
-//testing suite
+//TESTS
 describe('Greengrass service', () => {
-  //assign expected results
-  let {
-    createCoreRes,
-    createGroupRes,
-    createGroupVersionRes,
-    createDeviceDefRes,
-    createDeviceDefVersionRes,
-    getGroupRes,
-    getGroupVersionRes,
-    getDeviceDefVersionRes,
-    listDeviceDefinitionsRes
-  } = expectedResults;
-
-  //stub services
-  let createGroupStub = stub(greengrass, 'createGroup');
-  createGroupStub.returns({
-    promise: () => {
-      return Promise.resolve(createGroupRes);
-    }
-  });
-  let createCoreDefStub = stub(greengrass, 'createCoreDefinition');
-  createCoreDefStub.returns({
-    promise: () => {
-      return Promise.resolve(createCoreRes);
-    }
-  });
-  let createGroupVersionStub = stub(greengrass, 'createGroupVersion');
-  createGroupVersionStub.returns({
-    promise: () => {
-      return Promise.resolve(createGroupVersionRes);
-    }
-  });
-  let createDeviceDefStub = stub(greengrass, 'createDeviceDefinition');
-  createDeviceDefStub.returns({
-    promise: () => {
-      return Promise.resolve(createDeviceDefRes);
-    }
-  });
-  let getGroupStub = stub(greengrass, 'getGroup');
-  getGroupStub.returns({
-    promise: () => {
-      return Promise.resolve(getGroupRes);
-    }
-  });
-  let getGroupVersionStub = stub(greengrass, 'getGroupVersion');
-  getGroupVersionStub.returns({
-    promise: () => {
-      return Promise.resolve(getGroupVersionRes);
-    }
-  });
-  let createDeviceDefVersionStub = stub(
-    greengrass,
-    'createDeviceDefinitionVersion'
-  );
-  createDeviceDefVersionStub.returns({
-    promise: () => {
-      return Promise.resolve(createDeviceDefVersionRes);
-    }
-  });
-  let getDeviceDefVersionStub = stub(greengrass, 'getDeviceDefinitionVersion');
-  getDeviceDefVersionStub.returns({
-    promise: () => {
-      return Promise.resolve(getDeviceDefVersionRes);
-    }
-  });
-  let listDeviceDefinitionsStub = stub(greengrass, 'listDeviceDefinitions');
-  listDeviceDefinitionsStub.returns({
-    promise: () => {
-      return Promise.resolve(listDeviceDefinitionsRes);
-    }
-  });
-
   //start service
   const greengrassService = new GreengrassService(greengrass);
+
+  //reset stubs after tests
+  after(() => {
+    let stubs = [
+      createGroupStub,
+      createCoreDefStub,
+      createGroupVersionStub,
+      createDeviceDefStub,
+      getGroupStub,
+      getGroupVersionStub,
+      createDeviceDefVersionStub,
+      getDeviceDefVersionStub,
+      listDeviceDefinitionsStub
+    ];
+    resetStubHistory(stubs);
+  });
 
   //test methods
   describe(`has working method 'createGroup'`, () => {
     it('createGroup calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await greengrassService.createGroup('testName');
-      expect(res).to.deep.equal(createGroupRes);
+      expect(res).to.deep.equal(expectedResults.createGroupRes);
       expect(createGroupStub.args[0][0]).to.deep.equal({
         Name: 'testName'
       });
@@ -129,7 +78,7 @@ describe('Greengrass service', () => {
         },
         Name: 'myCoreDefName'
       };
-      expect(res).to.deep.equal(createCoreRes);
+      expect(res).to.deep.equal(expectedResults.createCoreRes);
       expect(createCoreDefStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -143,7 +92,7 @@ describe('Greengrass service', () => {
         GroupId: 'groupID',
         CoreDefinitionVersionArn: 'coreArn'
       };
-      expect(res).to.deep.equal(createGroupVersionRes);
+      expect(res).to.deep.equal(expectedResults.createGroupVersionRes);
       expect(createGroupVersionStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -153,7 +102,7 @@ describe('Greengrass service', () => {
       let calledWith = {
         GroupId: 'groupId'
       };
-      expect(res).to.deep.equal(getGroupRes);
+      expect(res).to.deep.equal(expectedResults.getGroupRes);
       expect(getGroupStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -164,7 +113,7 @@ describe('Greengrass service', () => {
         GroupId: 'groupId',
         GroupVersionId: 'versionId'
       };
-      expect(res).to.deep.equal(getGroupVersionRes);
+      expect(res).to.deep.equal(expectedResults.getGroupVersionRes);
       expect(getGroupVersionStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -180,7 +129,7 @@ describe('Greengrass service', () => {
         GroupVersionId: 'latestVersion'
       };
       expect(getGroupVersionStub.args[1][0]).to.deep.equal(calledWith);
-      let expected = getGroupVersionRes;
+      let expected = expectedResults.getGroupVersionRes;
       expected.groupName = 'groupName';
       expect(res).to.deep.equal(expected);
     });
@@ -205,7 +154,7 @@ describe('Greengrass service', () => {
         },
         Name: 'myNewDeviceDef'
       };
-      expect(res).to.equal(createDeviceDefRes);
+      expect(res).to.deep.equal(expectedResults.createDeviceDefRes);
       expect(createDeviceDefStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -227,7 +176,7 @@ describe('Greengrass service', () => {
         DeviceDefinitionId: 'deviceId',
         Devices: devicesArr
       };
-      expect(res).to.equal(createDeviceDefVersionRes);
+      expect(res).to.deep.equal(expectedResults.createDeviceDefVersionRes);
       expect(createDeviceDefVersionStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -241,7 +190,7 @@ describe('Greengrass service', () => {
         DeviceDefinitionId: 'deviceDefId',
         DeviceDefinitionVersionId: 'deviceDefVersionId'
       };
-      expect(res).to.deep.equal(getDeviceDefVersionRes);
+      expect(res).to.deep.equal(expectedResults.getDeviceDefVersionRes);
       expect(getDeviceDefVersionStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -251,7 +200,7 @@ describe('Greengrass service', () => {
       let calledWith = {
         MaxResults: '100'
       };
-      expect(res).to.deep.equal(listDeviceDefinitionsRes);
+      expect(res).to.deep.equal(expectedResults.listDeviceDefinitionsRes);
       expect(listDeviceDefinitionsStub.args[0][0]).to.deep.equal(calledWith);
     });
   });
@@ -260,7 +209,9 @@ describe('Greengrass service', () => {
       let res = await greengrassService.findLatestDeviceVersionId(
         'latestVersionArn'
       );
-      expect(res).to.deep.equal(listDeviceDefinitionsRes.Definitions[0]);
+      expect(res).to.deep.equal(
+        expectedResults.listDeviceDefinitionsRes.Definitions[0]
+      );
       expect();
     });
   });
@@ -269,7 +220,7 @@ describe('Greengrass service', () => {
       let res = await greengrassService.findLatestDeviceVersionDefinition(
         'latestVersionArn'
       );
-      expect(res).to.deep.equal(getDeviceDefVersionRes);
+      expect(res).to.deep.equal(expectedResults.getDeviceDefVersionRes);
     });
   });
 });
