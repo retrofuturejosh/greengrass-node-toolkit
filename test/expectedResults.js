@@ -74,7 +74,7 @@ const getGroupVersionRes = {
   CreationTimestamp: 'timestamp',
   Definition: {
     CoreDefinitionVersionArn: 'CoreDefinitionVersionArn',
-    DeviceDefinitionVersionArn: 'DeviceDefinitionVersionArn',
+    DeviceDefinitionVersionArn: 'latestVersionArn',
     FunctionDefinitionVersionArn: 'FunctionDefinitionVersionArn',
     LoggerDefinitionVersionArn: 'LoggerDefinitionVersionArn',
     ResourceDefinitionVersionArn: 'ResourceDefinitionVersionArn',
@@ -121,7 +121,7 @@ const listDeviceDefinitionsRes = {
       Name: 'definitionName'
     }
   ],
-  NextToken: 'nextToken'
+  // NextToken: 'nextToken'
 };
 
 const groupInfo = {

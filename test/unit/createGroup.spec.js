@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { expect } = require('chai');
 
+const { logRedDim } = require('../../src/utils/chalk');
 const expectedResults = require('../expectedResults');
 const { createGreengrassGroup } = require('../../src/createGroup');
 const {
@@ -40,7 +41,7 @@ describe('Greengrass set up', () => {
 
   it('Calls all the necessary APIs', () => {
     stubs.forEach(stub => {
-      return checkStub(stub);
+      return expect(stub.calledOnce).to.equal(true);
     });
   });
   it('Writes the folder/file ./groupInfo/groupInfoV1.json', () => {
@@ -63,32 +64,21 @@ describe('Greengrass set up', () => {
   });
   after(() => {
     //Clean up files
-    fs.unlink('./groupInfo/groupInfoV1.json', function(err) {
-      if (err) return console.log(err);
-      console.log('groupInfoV1.json deleted successfully');
-    });
-    fs.rmdir('./groupInfo', function(err) {
-      if (err) return console.log(err);
-      console.log('groupInfo folder deleted successfully');
-    });
-    fs.unlink('./certs/cloud-pem-crt', function(err) {
-      if (err) return console.log(err);
-      console.log('cloud-pem-crt deleted successfully');
-    });
-    fs.unlink('./certs/cloud-pem-key', function(err) {
-      if (err) return console.log(err);
-      console.log('cloud-pem-key deleted successfully');
-    });
-    fs.unlink('./config.json', function(err) {
-      if (err) return console.log(err);
-      console.log('cloud-pem-key deleted successfully');
-    });
+    try {
+      fs.unlinkSync('./groupInfo/groupInfoV1.json');
+      logRedDim('groupInfoV1.json deleted successfully');
+      fs.rmdirSync('./groupInfo');
+      logRedDim('groupInfo folder deleted successfully');
+      fs.unlinkSync('./certs/cloud-pem-crt');
+      logRedDim('cloud-pem-crt deleted successfully');
+      fs.unlinkSync('./certs/cloud-pem-key');
+      logRedDim('cloud-pem-key deleted successfully');
+      fs.unlinkSync('./config.json');
+      logRedDim('cloud-pem-key deleted successfully');
+    } catch (err) {
+      console.log(err);
+    }
     //reset stubs
     resetStubHistory(stubs);
   });
 });
-
-function checkStub(stub) {
-  console.log(stub.calledOnce);
-  return expect(stub.calledOnce).to.equal(true);
-}

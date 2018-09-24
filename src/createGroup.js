@@ -122,6 +122,7 @@ const createGreengrassGroup = async (
 
     //all done
     logGreen('Successfully set up Greengrass Group!');
+    return 'Success';
   } catch (err) {
     logRed(`failed to create greengrass group: \n ${err} \n ${err.stack}`);
   }

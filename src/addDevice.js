@@ -139,9 +139,14 @@ async function addDevice(iot, greengrass, deviceName) {
       updatedDefinition
     );
     logGreen('Created new Group Version');
+    return 'Success';
   } catch (err) {
     logRed(
       `Failed to add new device! \n ${err} \n ${JSON.stringify(err.stack)}`
     );
   }
 }
+
+module.exports = {
+  addDevice
+};

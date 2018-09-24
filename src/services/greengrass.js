@@ -275,7 +275,7 @@ class GreengrassService {
       if (filteredList.length) return filteredList[0];
       //if deviceDefinition is not found, but there is more list
       else if (list.NextToken)
-        return findLatestDeviceVersionId(latestVersionARN, list.NextToken);
+        return this.findLatestDeviceVersionId(latestVersionARN, list.NextToken);
       //if deviceDefinition is not found
       else return null;
     } catch (err) {
