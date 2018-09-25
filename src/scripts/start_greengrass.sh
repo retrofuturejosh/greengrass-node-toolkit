@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo su
 
 export CWD=$(pwd)
 
