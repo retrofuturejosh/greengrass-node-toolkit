@@ -10,11 +10,11 @@ wget -O $CWD/certs/root-ca-pem http://www.symantec.com/content/en/us/enterprise/
 tar -xzf $CWD/downloads/greengrass-linux-x86-64-1.6.0.tar.gz -C /
 
 # Copy certs
-sudo cp $CWD/certs/* /greengrass/certs
+cp $CWD/certs/* /greengrass/certs
 
 # Copy config
-sudo /bin/cp $CWD/config.json /greengrass/config
+/bin/cp $CWD/config.json /greengrass/config
 
 # Start greengrass
 cd /greengrass/ggc/core
-sudo ./greengrassd start
+./greengrassd start
