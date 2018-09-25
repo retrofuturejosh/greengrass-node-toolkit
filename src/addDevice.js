@@ -26,6 +26,8 @@ async function addDevice(iot, greengrass, deviceName) {
     //Create Cert
     let cert = await iotService.createKeysCert(true);
     let certArn = cert.certificateArn;
+    let certPem = cert.certificatePem;
+    let keyPem = cert.keyPair.PrivateKey;
     //Create addedDevices folder if none exists
     let dir = './addedDevices';
     if (!fs.existsSync(dir)) {
@@ -33,6 +35,10 @@ async function addDevice(iot, greengrass, deviceName) {
     }
     //add Device Info to folder
     fs.mkdirSync(`./addedDevices/${deviceName}`);
+    fs.mkdirSync(`./addedDevices/${deviceName}/certs`);
+    //Add certs to `/cert` folder
+    fs.writeFileSync(__dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-crt`, certPem);
+    fs.writeFileSync(__dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-key`, keyPem);
     fs.writeFileSync(
       __dirname + `/../addedDevices/${deviceName}/certInfo.json`,
       JSON.stringify(cert)
