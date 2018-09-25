@@ -12,8 +12,7 @@ class GreengrassConfigBuilder {
         mqttMaxConnectionRetryInterval: 60
       },
       runtime: { cgroup: { useSystemd: 'yes' } },
-      managedRespawn: true,
-      writeDirectory: '/write-directory'
+      managedRespawn: true
     };
   }
 
