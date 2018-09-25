@@ -2,10 +2,6 @@
 
 export CWD=$(pwd)
 
-# create gg users
-sudo adduser --system ggc_user
-sudo groupadd --system ggc_group
-
 # get CA root
 wget -O $CWD/certs/root-ca-pem http://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem
 
