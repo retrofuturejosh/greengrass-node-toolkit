@@ -9,7 +9,7 @@
     "setup-greengrass": "bash ./src/scripts/setup_greengrass.sh",
     "bootstrap-greengrass": "npm run create-group && npm run setup-greengrass",
     "add-device": "CREATE=device node src/index.js",
-    "start-greengrass": "npm run ./src/scripts/start_greengrass.sh"
+    "start-greengrass": "bash ./src/scripts/start_greengrass.sh"
   },
   "keywords": [],
   "author": "",
