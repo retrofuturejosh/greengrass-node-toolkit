@@ -1,3 +1,3 @@
 # Start greengrass
 cd /greengrass/ggc/core
-./greengrassd start
+sudo ./greengrassd start
