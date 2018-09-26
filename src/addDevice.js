@@ -13,6 +13,9 @@ const { GreengrassService } = require('./services/greengrass');
  */
 async function addDevice(iot, greengrass, deviceName) {
   try {
+    //object to save device info
+    let deviceInfo = {};
+
     //START SERVICE
     let iotService = new IoTService(iot);
     let greengrassService = new GreengrassService(greengrass);
@@ -21,6 +24,8 @@ async function addDevice(iot, greengrass, deviceName) {
     let newDevice = await iotService.createThing(deviceName);
     let thingArn = newDevice.thingArn;
     let thingId = newDevice.thingId;
+    //save to deviceInfo
+    deviceInfo.thingInfo = newDevice;
 
     //CERTS
     //Create Cert
@@ -33,16 +38,19 @@ async function addDevice(iot, greengrass, deviceName) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir);
     }
-    //add Device Info to folder
+    //add certs to ./addedDevices folder
     fs.mkdirSync(`./addedDevices/${deviceName}`);
     fs.mkdirSync(`./addedDevices/${deviceName}/certs`);
-    //Add certs to `/cert` folder
-    fs.writeFileSync(__dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-crt`, certPem);
-    fs.writeFileSync(__dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-key`, keyPem);
     fs.writeFileSync(
-      __dirname + `/../addedDevices/${deviceName}/certInfo.json`,
-      JSON.stringify(cert)
+      __dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-crt`,
+      certPem
     );
+    fs.writeFileSync(
+      __dirname + `/../addedDevices/${deviceName}/certs/cloud-pem-key`,
+      keyPem
+    );
+    //save cert info to deviceInfo
+    deviceInfo.certInfo = cert;
 
     //ATTACH CERT TO THING
     //Attach Thing Principal
@@ -76,6 +84,15 @@ async function addDevice(iot, greengrass, deviceName) {
       policyDoc
     );
     let policyName = policy.policyName;
+    //save policy to deviceInfo
+    deviceInfo.policy = policy;
+
+    //Save Device Info
+    fs.writeFileSync(
+      __dirname + `/../addedDevices/${deviceName}/deviceInfo.json`,
+      JSON.stringify(deviceInfo)
+    );
+
     //Attach policy to certificate
     let attachPolicy = await iotService.attachPrincipalPolicy(
       policyName,
@@ -144,6 +161,7 @@ async function addDevice(iot, greengrass, deviceName) {
       latestGroupVersion.Id,
       updatedDefinition
     );
+
     logGreen('Created new Group Version');
     return 'Success';
   } catch (err) {

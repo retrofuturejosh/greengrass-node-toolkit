@@ -42,23 +42,21 @@ describe('Add device function', () => {
       return expect(stub.calledOnce).to.equal(true);
     });
   });
-  it('Writes the file ./addedDevices/myNewDevice/certInfo.json', () => {
-    let certPath = fs.existsSync('./addedDevices/myNewDevice/certInfo.json');
+  it('Writes the file ./addedDevices/myNewDevice/deviceInfo.json', () => {
+    let certPath = fs.existsSync('./addedDevices/myNewDevice/deviceInfo.json');
     expect(certPath).to.equal(true);
   });
   after(() => {
     //clean up files
     try {
-      fs.unlinkSync('./groupInfo/groupInfoV1.json');
-      logRedDim('groupInfoV1.json deleted successfully');
-      fs.rmdirSync('./groupInfo');
-      logRedDim('groupInfo folder deleted successfully');
-      fs.unlinkSync('./addedDevices/myNewDevice/certInfo.json');
-      logRedDim('myNewDevice/certInfo.json deleted successfully');
-      fs.rmdirSync('./addedDevices/myNewDevice');
-      logRedDim('/addedDevices/myNewDevice folder deleted successfully');
-      fs.rmdirSync('./addedDevices');
-      logRedDim('/addedDevices folder deleted successfully');
+      removeFile('./groupInfo/groupInfoV1.json');
+      removeDirectory('./groupInfo');
+      removeFile('./addedDevices/myNewDevice/deviceInfo.json');
+      removeFile('./addedDevices/myNewDevice/certs/cloud-pem-crt');
+      removeFile('./addedDevices/myNewDevice/certs/cloud-pem-key');
+      removeDirectory('./addedDevices/myNewDevice/certs');
+      removeDirectory('./addedDevices/myNewDevice');
+      removeDirectory('./addedDevices');
     } catch (err) {
       console.log(err);
     }
@@ -66,3 +64,13 @@ describe('Add device function', () => {
     resetStubHistory(stubs);
   });
 });
+
+function removeFile(path) {
+  fs.unlinkSync(path);
+  logRedDim(`${path} deleted successfully`);
+}
+
+function removeDirectory(path) {
+  fs.rmdirSync(path);
+  logRedDim(`${path} folder deleted successfully`);
+}

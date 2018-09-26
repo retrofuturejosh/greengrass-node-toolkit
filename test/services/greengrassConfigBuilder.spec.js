@@ -14,8 +14,7 @@ let configOutline = {
     mqttMaxConnectionRetryInterval: 60
   },
   runtime: { cgroup: { useSystemd: 'yes' } },
-  managedRespawn: true,
-  writeDirectory: '/write-directory'
+  managedRespawn: true
 };
 
 describe('GreenGrassConfigBuilder class', () => {
