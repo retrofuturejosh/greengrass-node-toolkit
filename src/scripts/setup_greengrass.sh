@@ -1,4 +1,4 @@
-g#!/bin/bash
+#!/bin/bash
 sudo su
 
 export CWD=$(pwd)
