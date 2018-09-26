@@ -1,4 +1,4 @@
-#!/bin/bash
+g#!/bin/bash
 sudo su
 
 export CWD=$(pwd)
@@ -14,7 +14,3 @@ cp $CWD/certs/* /greengrass/certs
 
 # Copy config
 /bin/cp $CWD/config.json /greengrass/config
-
-# Start greengrass
-cd /greengrass/ggc/core
-./greengrassd start
