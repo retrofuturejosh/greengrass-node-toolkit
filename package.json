@@ -6,8 +6,8 @@
   "scripts": {
     "test": "mocha 'test/**/*.spec.js'",
     "create-group": "CREATE=group node src/index.js",
-    "start-greengrass": "bash ./src/scripts/start_greengrass.sh",
-    "bootstrap-greengrass": "npm run create-group && npm run start-greengrass",
+    "setup-greengrass": "bash ./src/scripts/setup_greengrass.sh",
+    "bootstrap-greengrass": "npm run create-group && npm run setup-greengrass",
     "add-device": "CREATE=device node src/index.js"
   },
   "keywords": [],
