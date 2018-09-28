@@ -1,4 +1,5 @@
 const AWS = require(`aws-sdk`);
+const fs = require('fs');
 
 const iot = new AWS.Iot({ apiVersion: '2015-05-28', region: 'us-east-1' });
 const greengrass = new AWS.Greengrass({
@@ -19,5 +20,12 @@ if (process.env.CREATE === 'group') {
 }
 
 if (process.env.CREATE === 'device') {
-  addDevice(iot, greengrass, process.env.DEVICE_NAME);
+  let coreName;
+  if (process.env.CORE_NAME) coreName = process.env.CORE_NAME;
+  else {
+    coreName = JSON.parse(
+      fs.readFileSync(__dirname + '/../groupInfo/groupInfoV1.json').toString('utf-8')
+    ).thing.thingName
+  }
+  addDevice(iot, greengrass, process.env.DEVICE_NAME, coreName);
 }

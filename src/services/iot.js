@@ -187,7 +187,7 @@ class IoTService {
    */
   async getPolicy(policyName) {
     const params = {
-      policyName: 'STRING_VALUE' /* required */
+      policyName
     };
     return await this.iot
       .getPolicy(params)
