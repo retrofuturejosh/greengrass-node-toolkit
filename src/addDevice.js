@@ -3,14 +3,16 @@ const { logGreen, logRed } = require('./utils/chalk.js');
 
 const { IoTService } = require('./services/iot');
 const { GreengrassService } = require('./services/greengrass');
+const { CorePolicyCreator } = require('./services/corePolicyCreator');
 
 /**
  *  creates a new thing with certs and policy, adds thing to greengrass group as device
  * @param {service} iot
  * @param {sevice} greengrass
  * @param {string} deviceName
+ * @param {string} coreName
  */
-async function addDevice(iot, greengrass, deviceName) {
+async function addDevice(iot, greengrass, deviceName, coreName) {
   try {
     //object to save device info
     let deviceInfo = {};
@@ -60,27 +62,12 @@ async function addDevice(iot, greengrass, deviceName) {
 
     //POLICY
     //Create policy
-    let policyDoc = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Effect: 'Allow',
-          Action: [
-            'iot:Publish',
-            'iot:Subscribe',
-            'iot:Connect',
-            'iot:Receive',
-            'iot:GetThingShadow',
-            'iot:DeleteThingShadow',
-            'iot:UpdateThingShadow'
-          ],
-          Resource: ['*']
-        }
-      ]
-    };
+    let policyCreator = new CorePolicyCreator();
+    policyCreator = await policyCreator.greenlightThingShadow(deviceName);
+    let devicePolicyDoc = policyCreator.getPolicy();
     let policy = await iotService.createPolicy(
       `${deviceName}Policy`,
-      policyDoc
+      devicePolicyDoc
     );
     let policyName = policy.policyName;
     //save policy to deviceInfo
@@ -109,6 +96,23 @@ async function addDevice(iot, greengrass, deviceName) {
       groupId
     );
     let groupName = latestGroupVersion.groupName;
+
+    //UPDATE CORE POLICY
+    //get current core policy
+    let currentPolicyInfo = await iotService.getPolicy(`${coreName}Policy`);
+    let currentPolicy = JSON.parse(currentPolicyInfo.policyDocument);
+    let existingResource = currentPolicy.Statement[0].Resource;
+    let newCorePolicy = await new CorePolicyCreator()
+      .addIoTResources(existingResource)
+      .greenlightThingShadow(deviceName)
+      .then(policy => {
+        return policy.getPolicy();
+      });
+    //update core policy
+    let policyUpdate = await iotService.createPolicyVersion(
+      newCorePolicy,
+      `${coreName}Policy`
+    );
 
     // Format Device Object to add to Device Definition Devices Arr
     let deviceToAdd = {
@@ -172,4 +176,34 @@ async function addDevice(iot, greengrass, deviceName) {
 
 module.exports = {
   addDevice
+};
+
+test = {
+  Version: '2012-10-17',
+  Statement: [
+    {
+      Effect: 'Allow',
+      Action: [
+        'iot:Publish',
+        'iot:Subscribe',
+        'iot:Connect',
+        'iot:Receive',
+        'iot:GetThingShadow',
+        'iot:DeleteThingShadow',
+        'iot:UpdateThingShadow'
+      ],
+      Resource: [
+        'arn:aws:iot:us-east-1:123456789012:topic/$aws/things/myNewThing/shadow/*',
+        'arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myNewDevice/shadow/*'
+      ]
+    },
+    {
+      Effect: 'Allow',
+      Action: [
+        'greengrass:GetConnectivityInfo',
+        'greengrass:UpdateConnectivityInfo'
+      ],
+      Resource: ['*']
+    }
+  ]
 };

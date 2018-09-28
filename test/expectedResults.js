@@ -36,8 +36,79 @@ const createPolicyRes = {
   policyName: 'greengrassPolicy',
   policyArn: 'policyArn',
   policyDocument:
-    '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iot:Publish","iot:Subscribe","iot:Connect","iot:Receive","iot:GetThingShadow","iot:DeleteThingShadow","iot:UpdateThingShadow","greengrass:AssumeRoleForGroup","greengrass:CreateCertificate","greengrass:GetConnectivityInfo","greengrass:GetDeployment","greengrass:GetDeploymentArtifacts","greengrass:UpdateConnectivityInfo","greengrass:UpdateCoreDeploymentStatus"],"Resource":["*"]}]}',
+    '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iot:Publish","iot:Subscribe","iot:Connect","iot:Receive","iot:GetThingShadow","iot:DeleteThingShadow","iot:UpdateThingShadow"],"Resource":["*"]},{"Effect":"Allow","Action":["greengrass:GetConnectivityInfo","greengrass:UpdateConnectivityInfo"],"Resource":["*"]}]}',
   policyVersionId: '1'
+};
+
+const createPolicyVersionRes = {
+  policyArn: 'policyArn',
+  policyDocument: JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Action: [
+          'iot:Publish',
+          'iot:Subscribe',
+          'iot:Connect',
+          'iot:Receive',
+          'iot:GetThingShadow',
+          'iot:DeleteThingShadow',
+          'iot:UpdateThingShadow'
+        ],
+        Resource: [
+          'arn:aws:iot:us-east-1:123456789012:topic/$aws/things/myNewThing/shadow/*'
+        ]
+      },
+      {
+        Effect: 'Allow',
+        Action: [
+          'greengrass:GetConnectivityInfo',
+          'greengrass:UpdateConnectivityInfo'
+        ],
+        Resource: ['*']
+      }
+    ]
+  }),
+  policyVersionId: '1',
+  isDefaultVersion: true
+};
+
+const getPolicyRes = {
+  policyName: 'policyName',
+  policyArn: 'policyArn',
+  policyDocument: JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Action: [
+          'iot:Publish',
+          'iot:Subscribe',
+          'iot:Connect',
+          'iot:Receive',
+          'iot:GetThingShadow',
+          'iot:DeleteThingShadow',
+          'iot:UpdateThingShadow'
+        ],
+        Resource: [
+          'arn:aws:iot:us-east-1:123456789012:topic/$aws/things/myNewThing/shadow/*'
+        ]
+      },
+      {
+        Effect: 'Allow',
+        Action: [
+          'greengrass:GetConnectivityInfo',
+          'greengrass:UpdateConnectivityInfo'
+        ],
+        Resource: ['*']
+      }
+    ]
+  }),
+  defaultVersionId: '3',
+  creationDate: 'Date',
+  lastModifiedDate: 'Date',
+  generationId: 'generationId'
 };
 
 const createGroupVersionRes = {
@@ -120,7 +191,7 @@ const listDeviceDefinitionsRes = {
       LatestVersionArn: 'latestVersionArn',
       Name: 'definitionName'
     }
-  ],
+  ]
   // NextToken: 'nextToken'
 };
 
@@ -147,7 +218,7 @@ const groupInfo = {
     policyName: 'greengrassPolicy',
     policyArn: 'policyArn',
     policyDocument:
-      '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iot:Publish","iot:Subscribe","iot:Connect","iot:Receive","iot:GetThingShadow","iot:DeleteThingShadow","iot:UpdateThingShadow","greengrass:AssumeRoleForGroup","greengrass:CreateCertificate","greengrass:GetConnectivityInfo","greengrass:GetDeployment","greengrass:GetDeploymentArtifacts","greengrass:UpdateConnectivityInfo","greengrass:UpdateCoreDeploymentStatus"],"Resource":["*"]}]}',
+      '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iot:Publish","iot:Subscribe","iot:Connect","iot:Receive","iot:GetThingShadow","iot:DeleteThingShadow","iot:UpdateThingShadow"],"Resource":["*"]},{"Effect":"Allow","Action":["greengrass:GetConnectivityInfo","greengrass:UpdateConnectivityInfo"],"Resource":["*"]}]}',
     policyVersionId: '1'
   },
   coreDefinition: {
@@ -174,6 +245,8 @@ module.exports = {
   createKeysRes,
   createCoreRes,
   createPolicyRes,
+  createPolicyVersionRes,
+  getPolicyRes,
   createGroupVersionRes,
   endpointRes,
   createDeviceDefRes,

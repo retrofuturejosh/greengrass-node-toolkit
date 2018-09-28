@@ -1,4 +1,5 @@
 const { logGreenDim, logRed } = require('../utils/chalk.js');
+const { CorePolicyCreator } = require('./corePolicyCreator');
 
 class IoTService {
   constructor(iot) {
@@ -79,34 +80,18 @@ class IoTService {
    * Creates necessary iot policy
    * @param {string} policyName - optional: name of policy
    * @param {object} policyDoc - optional: JSON policy document
+   * @param {array} thingArray - optional: an Array<string> with the names of devices you want permissions to connect/get/update
    */
-  createPolicy(policyName, policyDoc) {
-    let policy = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Effect: 'Allow',
-          Action: [
-            'iot:Publish',
-            'iot:Subscribe',
-            'iot:Connect',
-            'iot:Receive',
-            'iot:GetThingShadow',
-            'iot:DeleteThingShadow',
-            'iot:UpdateThingShadow',
-            'greengrass:AssumeRoleForGroup',
-            'greengrass:CreateCertificate',
-            'greengrass:GetConnectivityInfo',
-            'greengrass:GetDeployment',
-            'greengrass:GetDeploymentArtifacts',
-            'greengrass:UpdateConnectivityInfo',
-            'greengrass:UpdateCoreDeploymentStatus'
-          ],
-          Resource: ['*']
-        }
-      ]
-    };
-    let hash = (Math.random() + 1).toString(36).substring(7)
+  async createPolicy(policyName, policyDoc, thingArray) {
+    let policy;
+    if (policyDoc) policy = policyDoc;
+    else {
+      const policyCreator = new CorePolicyCreator();
+      if (thingArray)
+        policy = await policyCreator.greenlightThingArr(thingArray);
+      policy = policyCreator.getPolicy();
+    }
+    let hash = (Math.random() + 1).toString(36).substring(7);
     let params = {
       policyDocument: JSON.stringify(policy) /* required */,
       policyName: `greengrassPolicy${hash}` /* required */
@@ -169,6 +154,50 @@ class IoTService {
       })
       .catch(err => {
         logRed(`failed to get endpoing: \n ${err} \n ${err.stack}`);
+      });
+  }
+
+  /**
+   * creates a new policy version
+   * @param {object} policyDoc
+   * @param {string} policyName
+   * @param {boolean} setAsDefault default is true
+   */
+  async createPolicyVersion(policyDoc, policyName, setAsDefault = true) {
+    const params = {
+      policyDocument: JSON.stringify(policyDoc),
+      policyName,
+      setAsDefault
+    };
+    return await this.iot
+      .createPolicyVersion(params)
+      .promise()
+      .then(res => {
+        logGreenDim(`created policy version: ${JSON.stringify(res)}`);
+        return res;
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  /**
+   * returns info about policy
+   * @param {string} policyName
+   */
+  async getPolicy(policyName) {
+    const params = {
+      policyName: 'STRING_VALUE' /* required */
+    };
+    return await this.iot
+      .getPolicy(params)
+      .promise()
+      .then(res => {
+        logGreenDim(`got policy info: ${JSON.stringify(res)}`);
+        return res;
+      })
+      .catch(err => {
+        console.log(err);
       });
   }
 }

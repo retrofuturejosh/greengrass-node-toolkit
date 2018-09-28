@@ -35,7 +35,7 @@ describe('Add device function', () => {
       __dirname + `/../../groupInfo/groupInfoV1.json`,
       JSON.stringify({ group: { Id: 'groupId' } })
     );
-    let res = await addDevice(iot, greengrass, 'myNewDevice');
+    let res = await addDevice(iot, greengrass, 'myNewDevice', 'ogDevice');
   });
   it('Calls all the necessary APIs', () => {
     stubs.forEach(stub => {

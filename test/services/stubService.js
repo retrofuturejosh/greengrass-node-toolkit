@@ -108,9 +108,20 @@ getEndpointStub.returns({
     return Promise.resolve(expectedResults.endpointRes);
   }
 });
+let getPolicyStub = stub(iot, 'getPolicy');
+getPolicyStub.returns({
+  promise: () => {
+    return Promise.resolve(expectedResults.getPolicyRes);
+  }
+});
+let createPolicyVersionStub = stub(iot, 'createPolicyVersion');
+createPolicyVersionStub.returns({
+  promise: () => {
+    return Promise.resolve(expectedResults.createPolicyVersionRes);
+  }
+});
 
 //HELPER FUNCTIONS
-
 /**
  * calls an array of stubs one at a time with a supplied callback
  * @param {array} stubArr - array of stubs

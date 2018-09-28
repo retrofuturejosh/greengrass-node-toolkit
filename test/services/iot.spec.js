@@ -2,6 +2,7 @@ const { expect } = require('chai');
 
 //import iot stubs, iot service, and expected results
 const { IoTService } = require('../../src/services/iot');
+const { CorePolicyCreator } = require('../../src/services/corePolicyCreator');
 const expectedResults = require('../expectedResults.js');
 const {
   iot,
@@ -68,31 +69,7 @@ describe('IoT Service', () => {
   describe(`has working method: createPolicy`, () => {
     it('createPolicy calls the service with correct params and returns promise resolving to correct data', async () => {
       let res = await iotService.createPolicy();
-      let policy = {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: [
-              'iot:Publish',
-              'iot:Subscribe',
-              'iot:Connect',
-              'iot:Receive',
-              'iot:GetThingShadow',
-              'iot:DeleteThingShadow',
-              'iot:UpdateThingShadow',
-              'greengrass:AssumeRoleForGroup',
-              'greengrass:CreateCertificate',
-              'greengrass:GetConnectivityInfo',
-              'greengrass:GetDeployment',
-              'greengrass:GetDeploymentArtifacts',
-              'greengrass:UpdateConnectivityInfo',
-              'greengrass:UpdateCoreDeploymentStatus'
-            ],
-            Resource: ['*']
-          }
-        ]
-      };
+      let policy = new CorePolicyCreator().getPolicy();
       expect(res).to.deep.equal(expectedResults.createPolicyRes);
       expect(createPolicyStub.args[0][0].policyDocument).to.equal(
         JSON.stringify(policy)
