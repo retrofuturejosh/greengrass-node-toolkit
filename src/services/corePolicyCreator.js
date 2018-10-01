@@ -23,8 +23,13 @@ class CorePolicyCreator {
     this.greengrassStatement = {
       Effect: 'Allow',
       Action: [
+        'greengrass:AssumeRoleForGroup',
+        'greengrass:CreateCertificate',
         'greengrass:GetConnectivityInfo',
-        'greengrass:UpdateConnectivityInfo'
+        'greengrass:GetDeployment',
+        'greengrass:GetDeploymentArtifacts',
+        'greengrass:UpdateConnectivityInfo',
+        'greengrass:UpdateCoreDeploymentStatus'
       ],
       Resource: ['*']
     };
