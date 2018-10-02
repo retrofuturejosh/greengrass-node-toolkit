@@ -61,7 +61,7 @@ const createGreengrassGroup = async (iot, greengrass, groupName, thingName) => {
 
     //POLICY
     //Create policy
-    let policy = await iotService.createPolicy(`${thingName}Policy`, null, [thingName]);
+    let policy = await iotService.createPolicy(`${thingName}Policy`, null, [`${thingName}-gda`, thingName]);
     let policyName = policy.policyName;
     groupInfo.policy = policy;
     //Attach policy to certificate
