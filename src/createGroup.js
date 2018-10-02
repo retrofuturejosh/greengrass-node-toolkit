@@ -4,6 +4,7 @@ const { logGreen, logRed } = require('./utils/chalk.js');
 const { GreengrassService } = require('./services/greengrass');
 const { IoTService } = require('./services/iot');
 const { GreengrassConfigBuilder } = require('./services/ggConfig');
+const { CorePolicyCreator } = require('./services/corePolicyCreator');
 
 /**
  * Sets up greengrass group with thing/core, group, certificate, policy, and version
@@ -61,7 +62,13 @@ const createGreengrassGroup = async (iot, greengrass, groupName, thingName) => {
 
     //POLICY
     //Create policy
-    let policy = await iotService.createPolicy(`${thingName}Policy`, null, [`${thingName}-gda`, thingName]);
+    let policyCreator = new CorePolicyCreator();
+    policyCreator = await policyCreator.addThingCore(thingName);
+    let policyDoc = policyCreator.getPolicy();
+    console.log('PolicyDoc is :\n\n\n\n\n\n\n\n\n', JSON.stringify(policyDoc));
+    // let policy = await iotService.createPolicy(`${thingName}Policy`, null, [`${thingName}-gda`, thingName]).addThingCore(thingName);
+    let policy = await iotService.createPolicy(`${thingName}Policy`, policyDoc);
+
     let policyName = policy.policyName;
     groupInfo.policy = policy;
     //Attach policy to certificate

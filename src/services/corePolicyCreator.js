@@ -50,14 +50,48 @@ class CorePolicyCreator {
     return policy;
   }
 
+  async addThingCore(thing) {
+    if (!this.account) {
+      let account = await this.getAccount();
+    }
+    let thingResource = `arn:aws:iot:us-east-1:${this.account}:thing/${thing}`;
+    let thingResourceGDA = `arn:aws:iot:us-east-1:${
+      this.account
+    }:thing/${thing}-gda`;
+    let resourceGDA = `arn:aws:iot:us-east-1:${
+      this.account
+    }:topic/$aws/things/${thing}-gda/*`;
+    let resource = `arn:aws:iot:us-east-1:${
+      this.account
+    }:topic/$aws/things/${thing}/*`;
+    let newIotStatement = JSON.parse(JSON.stringify(this.iotStatement));
+    let oldResource = newIotStatement.Resource;
+    let newResource = [].concat(
+      oldResource,
+      thingResource,
+      thingResourceGDA,
+      resourceGDA,
+      resource
+    );
+    newIotStatement.Resource = newResource;
+    this.iotStatement = newIotStatement;
+    return this;
+  }
+
   async greenlightThingShadow(thing) {
     if (!this.account) {
       let account = await this.getAccount();
     }
-    let topic = `$aws/things/${thing}/shadow/*`;
-    let resource = `arn:aws:iot:us-east-1:${this.account}:topic/${topic}`;
+    let resource = `arn:aws:iot:us-east-1:${this.account}:topic/$aws/things/${thing}/shadow/*`;
+    let thingResource = `arn:aws:iot:us-east-1:${this.account}:thing/${thing}`;
     let newIotStatement = JSON.parse(JSON.stringify(this.iotStatement));
-    newIotStatement.Resource.push(resource);
+    let oldResource = newIotStatement.Resource;
+    let newResource = [].concat(
+      oldResource,
+      thingResource,
+      resource
+    );
+    newIotStatement.Resource = newResource;
     this.iotStatement = newIotStatement;
     return this;
   }
