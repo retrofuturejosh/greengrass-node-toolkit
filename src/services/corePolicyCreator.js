@@ -7,18 +7,29 @@ class CorePolicyCreator {
       Version: '2012-10-17',
       Statement: []
     };
-    this.iotStatement = {
+    this.iotThingStatement = {
       Effect: 'Allow',
       Action: [
-        'iot:Publish',
-        'iot:Subscribe',
-        'iot:Connect',
-        'iot:Receive',
         'iot:GetThingShadow',
         'iot:DeleteThingShadow',
         'iot:UpdateThingShadow'
       ],
       Resource: []
+    };
+    this.iotTopicStatement = {
+      Effect: 'Allow',
+      Action: ['iot:Receive', 'iot:Publish'],
+      Resource: []
+    };
+    this.iotTopicFilterStatement = {
+      Effect: 'Allow',
+      Action: ['iot:Subscribe'],
+      Resource: []
+    };
+    this.iotStatement = {
+      Effect: 'Allow',
+      Action: ['iot:Connect'],
+      Resource: ['*']
     };
     this.greengrassStatement = {
       Effect: 'Allow',
@@ -39,42 +50,71 @@ class CorePolicyCreator {
 
   getPolicy() {
     let policy = JSON.parse(JSON.stringify(this.policy));
+    let thingStatement = JSON.parse(JSON.stringify(this.iotThingStatement));
+    let topicStatement = JSON.parse(JSON.stringify(this.iotTopicStatement));
+    let topicFilterStatement = JSON.parse(
+      JSON.stringify(this.iotTopicFilterStatement)
+    );
     let iotStatement = JSON.parse(JSON.stringify(this.iotStatement));
-    if (!iotStatement.Resource.length) iotStatement.Resource = ['*'];
     let greengrassStatement = JSON.parse(
       JSON.stringify(this.greengrassStatement)
     );
-    policy.Statement = policy.Statement.concat(iotStatement).concat(
+    policy.Statement = policy.Statement.concat(
+      thingStatement,
+      topicStatement,
+      topicFilterStatement,
+      iotStatement,
       greengrassStatement
     );
+    console.log('POLICY : \n\n\n');
+    console.log(JSON.stringify(policy));
     return policy;
+  }
+
+  addThingResource(thing) {
+    let thingResource = `arn:aws:iot:us-east-1:${this.account}:thing/${thing}`;
+    let newStatement = JSON.parse(JSON.stringify(this.iotThingStatement));
+    let oldResource = newStatement.Resource;
+    let newResource = [].concat(oldResource, thingResource);
+    newStatement.Resource = newResource;
+    this.iotThingStatement = newStatement;
+    return this;
+  }
+
+  addTopicResource(thing) {
+    let topicResource = `arn:aws:iot:us-east-1:${
+      this.account
+    }:topic/$aws/things/${thing}/*`;
+    let newStatement = JSON.parse(JSON.stringify(this.iotTopicStatement));
+    let oldResource = newStatement.Resource;
+    let newResource = [].concat(oldResource, topicResource);
+    newStatement.Resource = newResource;
+    this.iotTopicStatement = newStatement;
+    return this;
+  }
+
+  addTopicFilterResource(thing) {
+    let topicFilterResource = `arn:aws:iot:us-east-1:${
+      this.account
+    }:topicfilter/$aws/things/${thing}/*`;
+    let newStatement = JSON.parse(JSON.stringify(this.iotTopicFilterStatement));
+    let oldResource = newStatement.Resource;
+    let newResource = [].concat(oldResource, topicFilterResource);
+    newStatement.Resource = newResource;
+    this.iotTopicFilterStatement = newStatement;
+    return this;
   }
 
   async addThingCore(thing) {
     if (!this.account) {
       let account = await this.getAccount();
     }
-    let thingResource = `arn:aws:iot:us-east-1:${this.account}:thing/${thing}`;
-    let thingResourceGDA = `arn:aws:iot:us-east-1:${
-      this.account
-    }:thing/${thing}-gda`;
-    let resourceGDA = `arn:aws:iot:us-east-1:${
-      this.account
-    }:topic/$aws/things/${thing}-gda/*`;
-    let resource = `arn:aws:iot:us-east-1:${
-      this.account
-    }:topic/$aws/things/${thing}/*`;
-    let newIotStatement = JSON.parse(JSON.stringify(this.iotStatement));
-    let oldResource = newIotStatement.Resource;
-    let newResource = [].concat(
-      oldResource,
-      thingResource,
-      thingResourceGDA,
-      resourceGDA,
-      resource
-    );
-    newIotStatement.Resource = newResource;
-    this.iotStatement = newIotStatement;
+    this.addThingResource(thing);
+    this.addThingResource(`${thing}-gda`);
+    this.addTopicResource(thing);
+    this.addTopicResource(`${thing}-gda`);
+    this.addTopicFilterResource(thing);
+    this.addTopicFilterResource(`${thing}-gda`);
     return this;
   }
 
@@ -82,17 +122,9 @@ class CorePolicyCreator {
     if (!this.account) {
       let account = await this.getAccount();
     }
-    let resource = `arn:aws:iot:us-east-1:${this.account}:topic/$aws/things/${thing}/shadow/*`;
-    let thingResource = `arn:aws:iot:us-east-1:${this.account}:thing/${thing}`;
-    let newIotStatement = JSON.parse(JSON.stringify(this.iotStatement));
-    let oldResource = newIotStatement.Resource;
-    let newResource = [].concat(
-      oldResource,
-      thingResource,
-      resource
-    );
-    newIotStatement.Resource = newResource;
-    this.iotStatement = newIotStatement;
+    this.addThingResource(thing);
+    this.addTopicResource(thing);
+    this.addTopicFilterResource(thing);
     return this;
   }
 
@@ -123,12 +155,14 @@ class CorePolicyCreator {
 
   /**
    *
-   * @param {array} resourceArray array<string>
+   * @param {array} topicResourceArray array<string>
    */
-  addIoTResources(resourceArray) {
-    let newIotStatement = JSON.parse(JSON.stringify(this.iotStatement));
-    newIotStatement.Resource = resourceArray;
-    this.iotStatement = newIotStatement;
+  addStatement(statement) {
+    this.iotThingStatement = statement[0];
+    this.iotTopicStatement = statement[1];
+    this.iotTopicFilterStatement = statement[2];
+    this.iotStatement = statement[3];
+    this.greengrassStatement = statement[4];
     return this;
   }
 }

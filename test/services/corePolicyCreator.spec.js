@@ -8,21 +8,25 @@ let standardPolicy = {
     {
       Effect: 'Allow',
       Action: [
-        'iot:Publish',
-        'iot:Subscribe',
-        'iot:Connect',
-        'iot:Receive',
         'iot:GetThingShadow',
         'iot:DeleteThingShadow',
         'iot:UpdateThingShadow'
       ],
-      Resource: ['*']
+      Resource: []
     },
+    { Effect: 'Allow', Action: ['iot:Receive', 'iot:Publish'], Resource: [] },
+    { Effect: 'Allow', Action: ['iot:Subscribe'], Resource: [] },
+    { Effect: 'Allow', Action: ['iot:Connect'], Resource: ['*'] },
     {
       Effect: 'Allow',
       Action: [
+        'greengrass:AssumeRoleForGroup',
+        'greengrass:CreateCertificate',
         'greengrass:GetConnectivityInfo',
-        'greengrass:UpdateConnectivityInfo'
+        'greengrass:GetDeployment',
+        'greengrass:GetDeploymentArtifacts',
+        'greengrass:UpdateConnectivityInfo',
+        'greengrass:UpdateCoreDeploymentStatus'
       ],
       Resource: ['*']
     }
@@ -37,11 +41,18 @@ describe('CorePolicyCreator Class', () => {
     });
   });
   describe(`Method: 'greenlightThingShadow'`, () => {
-    let standardPolicyCopy = JSON.parse(JSON.stringify(standardPolicy));
-    standardPolicyCopy.Statement[0].Resource = [
-      `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myNewThing/shadow/*`
-    ];
     it(`can add the correct resource to access topics on the thing's device shadow`, async () => {
+      let account = await new CorePolicyCreator().getAccount();
+      let standardPolicyCopy = JSON.parse(JSON.stringify(standardPolicy));
+      standardPolicyCopy.Statement[0].Resource = [
+        `arn:aws:iot:us-east-1:${account}:thing/myNewThing`
+      ];
+      standardPolicyCopy.Statement[1].Resource = [
+        `arn:aws:iot:us-east-1:${account}:topic/$aws/things/myNewThing/*`
+      ];
+      standardPolicyCopy.Statement[2].Resource = [
+        `arn:aws:iot:us-east-1:${account}:topicfilter/$aws/things/myNewThing/*`
+      ];
       let policy = await new CorePolicyCreator()
         .greenlightThingShadow('myNewThing')
         .then(policy => {
@@ -51,34 +62,27 @@ describe('CorePolicyCreator Class', () => {
     });
   });
   describe(`Method: 'greenlightThingArr'`, () => {
-    let standardPolicyCopy = JSON.parse(JSON.stringify(standardPolicy));
-    standardPolicyCopy.Statement[0].Resource = [
-      `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myNewThing/shadow/*`,
-      `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myOtherThing/shadow/*`
-    ];
     it(`can take an array of thing names and add the correct resources to access topics on the things' device shadows`, async () => {
+      let account = await new CorePolicyCreator().getAccount();
+      let standardPolicyCopy = JSON.parse(JSON.stringify(standardPolicy));
+      standardPolicyCopy.Statement[0].Resource = [
+        `arn:aws:iot:us-east-1:${account}:thing/myNewThing`,
+        `arn:aws:iot:us-east-1:${account}:thing/myOtherThing`
+      ];
+      standardPolicyCopy.Statement[1].Resource = [
+        `arn:aws:iot:us-east-1:${account}:topic/$aws/things/myNewThing/*`,
+        `arn:aws:iot:us-east-1:${account}:topic/$aws/things/myOtherThing/*`
+      ];
+      standardPolicyCopy.Statement[2].Resource = [
+        `arn:aws:iot:us-east-1:${account}:topicfilter/$aws/things/myNewThing/*`,
+        `arn:aws:iot:us-east-1:${account}:topicfilter/$aws/things/myOtherThing/*`
+      ];
       let policy = await new CorePolicyCreator()
         .greenlightThingArr(['myNewThing', 'myOtherThing'])
         .then(policy => {
           return policy.getPolicy();
         });
       expect(policy).to.deep.equal(standardPolicyCopy);
-    });
-  });
-  describe(`Method: 'greenlightThingArr'`, () => {
-    let anotherPolicy = JSON.parse(JSON.stringify(standardPolicy));
-    anotherPolicy.Statement[0].Resource = [
-      `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myNewThing/shadow/*`,
-      `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myOtherThing/shadow/*`
-    ];
-    it('can add an existing Resource array', () => {
-      let policy = new CorePolicyCreator()
-        .addIoTResources([
-          `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myNewThing/shadow/*`,
-          `arn:aws:iot:us-east-1:878186260336:topic/$aws/things/myOtherThing/shadow/*`
-        ])
-        .getPolicy();
-      expect(policy).to.deep.equal(anotherPolicy);
     });
   });
 });

@@ -101,9 +101,9 @@ async function addDevice(iot, greengrass, deviceName, coreName) {
     //get current core policy
     let currentPolicyInfo = await iotService.getPolicy(`${coreName}Policy`);
     let currentPolicy = JSON.parse(currentPolicyInfo.policyDocument);
-    let existingResource = currentPolicy.Statement[0].Resource;
+    let existingStatement = currentPolicy.Statement;
     let newCorePolicy = await new CorePolicyCreator()
-      .addIoTResources(existingResource)
+      .addStatement(existingStatement)
       .greenlightThingShadow(deviceName)
       .then(policy => {
         return policy.getPolicy();
