@@ -65,6 +65,14 @@ const createGreengrassGroup = async (iot, greengrass, groupName, thingName) => {
     let policyCreator = new CorePolicyCreator();
     policyCreator = await policyCreator.addThingCore(thingName);
     let policyDoc = policyCreator.getPolicy();
+
+
+    //FOR DEMO ONLY
+    let account = await policyCreator.getAccount();
+    policyDoc.Statement[1].Resource.push(`arn:aws:iot:us-east-1:${account}:topic/hello/world`)
+
+
+
     console.log('PolicyDoc is :\n\n\n\n\n\n\n\n\n', JSON.stringify(policyDoc));
     // let policy = await iotService.createPolicy(`${thingName}Policy`, null, [`${thingName}-gda`, thingName]).addThingCore(thingName);
     let policy = await iotService.createPolicy(`${thingName}Policy`, policyDoc);
