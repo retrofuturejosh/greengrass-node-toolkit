@@ -66,8 +66,8 @@ class CorePolicyCreator {
       iotStatement,
       greengrassStatement
     );
-    console.log('POLICY : \n\n\n');
-    console.log(JSON.stringify(policy));
+    // console.log('POLICY : \n\n\n');
+    // console.log(JSON.stringify(policy));
     return policy;
   }
 

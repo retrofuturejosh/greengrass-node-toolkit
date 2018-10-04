@@ -73,7 +73,6 @@ const createGreengrassGroup = async (iot, greengrass, groupName, thingName) => {
 
 
 
-    console.log('PolicyDoc is :\n\n\n\n\n\n\n\n\n', JSON.stringify(policyDoc));
     // let policy = await iotService.createPolicy(`${thingName}Policy`, null, [`${thingName}-gda`, thingName]).addThingCore(thingName);
     let policy = await iotService.createPolicy(`${thingName}Policy`, policyDoc);
 
