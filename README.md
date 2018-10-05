@@ -17,7 +17,7 @@ npm install
 
 ## Bootstrapping Greengrass Service
 
-The following steps will create the necessary entities for a Greengrass Group and set up the Greengrass service.
+The following steps will create the necessary entities for a Greengrass Group and set up the Greengrass service in 'us-east-1'.
 
 #### Run Scripts
 To create group and set up Greengrass:
