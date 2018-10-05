@@ -87,20 +87,20 @@ const getPolicyRes = {
           'iot:DeleteThingShadow',
           'iot:UpdateThingShadow'
         ],
-        Resource: ['arn:aws:iot:us-east-1:940503256434:thing/myNewThing']
+        Resource: ['arn:aws:iot:us-east-1:123456789012:thing/myNewThing']
       },
       {
         Effect: 'Allow',
         Action: ['iot:Receive', 'iot:Publish'],
         Resource: [
-          'arn:aws:iot:us-east-1:940503256434:topic/$aws/things/myNewThing/*'
+          'arn:aws:iot:us-east-1:123456789012:topic/$aws/things/myNewThing/*'
         ]
       },
       {
         Effect: 'Allow',
         Action: ['iot:Subscribe'],
         Resource: [
-          'arn:aws:iot:us-east-1:940503256434:topicfilter/$aws/things/myNewThing/*'
+          'arn:aws:iot:us-east-1:123456789012:topicfilter/$aws/things/myNewThing/*'
         ]
       },
       { Effect: 'Allow', Action: ['iot:Connect'], Resource: ['*'] },
